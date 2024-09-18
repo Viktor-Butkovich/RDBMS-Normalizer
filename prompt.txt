@@ -29,7 +29,7 @@ Choice of the Highest Normal Form to Reach (1NF, 2NF, 3NF, BCNF, 4NF, 5NF)
 Your program is required to allow the user to specify the highest normal form they aim to achieve. When a target normal form is selected, such as 4NF, the program must first ensure that the database meets the criteria for 1NF, 2NF, 3NF, and BCNF in sequence.  
 Input Format Flexibility: You are free to choose the input format and data representations that best suit your approach to the task.   
 
- 
+
 
 Output:
 Upon successfully completing the normalization process, the output of your program should effectively demonstrate the final, normalized database schema. This can be presented in one or more of the following formats to ensure clarity: 

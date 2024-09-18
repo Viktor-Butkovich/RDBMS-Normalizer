@@ -1,0 +1,6 @@
+Normalize to: ABC
+
+CoffeeShopData: OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen
+Primary key: {OrderID, DrinkID, FoodID}
+Candidate keys:
+Multivalued attributes: PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen
