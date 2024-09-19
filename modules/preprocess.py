@@ -1,5 +1,5 @@
 from . import relation
-from typing import List
+from typing import List, Tuple
 
 valid_normal_forms = ["0NF", "1NF", "2NF", "3NF", "BCNF", "4NF", "5NF"]
 
@@ -10,8 +10,8 @@ def read_input_file(file_path: str) -> List[str]:
     return data
 
 
-def process_input(input_file: str) -> List[relation.relation]:
-    input_data = read_input_file(f"inputs/{input_file}").split("\n")
+def process_input(input_file: str) -> Tuple[str, List[relation.relation]]:
+    input_data = read_input_file(f"{input_file}").split("\n")
     input_data = [line for line in input_data if line.strip()]  # Remove empty lines
 
     normalize_to = input_data.pop(0)
@@ -33,7 +33,7 @@ def process_input(input_file: str) -> List[relation.relation]:
     relations = []
     while input_data:
         relations.append(extract_relation(input_data))
-    return relations
+    return normalize_to, relations
 
 
 def braces_to_list(braces: str) -> List[str]:
@@ -48,7 +48,10 @@ def extract_relation(input_data: List[str]) -> relation.relation:
             f"The first field in each relation must be 'Relation: <name>', not {input_data[0]}"
         )
     name = input_data.pop(0).split(":")[1].strip()
-    input_dict = {"Name": name}
+    input_dict = {
+        "Name": name,
+        "Tuples": [],
+    }
     relation_fields = []
     while input_data and not input_data[0].startswith("Relation:"):
         relation_fields.append(input_data.pop(0))
@@ -58,6 +61,7 @@ def extract_relation(input_data: List[str]) -> relation.relation:
         "Candidate keys",
         "Multivalued attributes",
         "Data types",
+        "Tuple",
     ]
     required_fields = [
         "Attributes",
@@ -68,38 +72,69 @@ def extract_relation(input_data: List[str]) -> relation.relation:
             raise ValueError(f"Invalid field {field.split(':')[0]} in relation {name}")
         field_name = field.split(":")[0].strip()
         field_value = field.split(":")[1].strip()
-        if field_name in [
-            "Attributes",
-            "Primary key",
-            "Multivalued attributes",
-            "Data types",
-        ]:
+        if field_name == "Tuple":
             if not (field_value.startswith("{") and field_value.endswith("}")):
                 raise ValueError(
                     f"Invalid syntax - {field_name} must be formatted as {{___, ___, ___}} in relation {name}"
                 )
-            field_value = [
-                attr.replace("{", "").replace("}", "").strip()
-                for attr in field_value.split(",")
-            ]
-            # Separates "{a, b, c}" into ["a", "b", "c"]
-        elif field_name == "Candidate keys":
-            if field_value.strip() == "":
-                field_value = []
-            else:
-                if not (field_value.startswith("{{") and field_value.endswith("}}")):
+            field_value = field_value.removeprefix("{").removesuffix("}")
+            split_list = field_value.split(", ")
+            field_value = []
+            current_tuple = ""
+            for (
+                item
+            ) in (
+                split_list
+            ):  # Split string into list of values, with any {...} sets as a single list item
+                if item.startswith("{"):
+                    if item.endswith("}"):
+                        field_value.append(braces_to_list(item))
+                    else:
+                        current_tuple = item
+                elif item.endswith("}"):
+                    current_tuple += ", " + item
+                    field_value.append(braces_to_list(current_tuple))
+                    current_tuple = ""
+                elif current_tuple != "":
+                    current_tuple += ", " + item
+                else:
+                    field_value.append(item)
+            input_dict["Tuples"].append(field_value)
+        else:
+            if field_name in [
+                "Attributes",
+                "Primary key",
+                "Multivalued attributes",
+                "Data types",
+            ]:
+                if not (field_value.startswith("{") and field_value.endswith("}")):
                     raise ValueError(
-                        "Invalid syntax - "
-                        + field_name
-                        + " must be formatted as {{___, ___}, {___, ___}} in relation "
-                        + name
+                        f"Invalid syntax - {field_name} must be formatted as {{___, ___, ___}} in relation {name}"
                     )
                 field_value = [
-                    braces_to_list(braces)
-                    for braces in field_value.replace("}, ", "}:").split(":")
+                    attr.replace("{", "").replace("}", "").strip()
+                    for attr in field_value.split(",")
                 ]
-                # Separates "{a, b}, {c}" into [["a", "b"], ["c"]]
-        input_dict[field_name] = field_value
+                # Separates "{a, b, c}" into ["a", "b", "c"]
+            elif field_name == "Candidate keys":
+                if field_value.strip() == "":
+                    field_value = []
+                else:
+                    if not (
+                        field_value.startswith("{{") and field_value.endswith("}}")
+                    ):
+                        raise ValueError(
+                            "Invalid syntax - "
+                            + field_name
+                            + " must be formatted as {{___, ___}, {___, ___}} in relation "
+                            + name
+                        )
+                    field_value = [
+                        braces_to_list(braces)
+                        for braces in field_value.replace("}, ", "}:").split(":")
+                    ]
+                    # Separates "{a, b}, {c}" into [["a", "b"], ["c"]]
+            input_dict[field_name] = field_value
     for field in required_fields:
         if input_dict.get(field) is None:
             raise ValueError(f"Missing required field {field} in relation {name}")
@@ -115,4 +150,9 @@ def extract_relation(input_data: List[str]) -> relation.relation:
         raise ValueError(
             f"The number of data types ({len(input_dict['Data types'])}) must match the number of attributes ({len(input_dict['Attributes'])}) in relation {name}"
         )
+    for tuple in input_dict["Tuples"]:
+        if len(tuple) != len(input_dict["Attributes"]):
+            raise ValueError(
+                f"The number of values in tuple <{tuple}> ({len(tuple)}) must match the number of attributes ({len(input_dict['Attributes'])}) in relation {name}"
+            )
     return relation.relation(input_dict)

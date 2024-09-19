@@ -1,0 +1,9 @@
+Normalize to: 1NF
+
+Relation: CoffeeShopData
+Attributes: {OrderID, Date, PromocodeUsed}
+Data types: {INT, DATE, LIST[VARCHAR]}
+Primary key: {OrderID}
+Multivalued attributes: {PromocodeUsed}
+Tuple: {1001, 6/30/2024, NONE}
+Tuple: {1002, SUMMERFUN}

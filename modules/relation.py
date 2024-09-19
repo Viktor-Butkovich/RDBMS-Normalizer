@@ -9,11 +9,25 @@ class relation:
         self.candidate_keys = input_dict["Candidate keys"]
         self.multivalued_attrs = input_dict.get("Multivalued attributes", [])
         self.data_types = input_dict.get("Data types", [])
+        self.tuples = input_dict.get("Tuples", [])
 
     def __str__(self) -> str:
-        description = f"Relation: {self.name}\nAttributes: {self.attrs}\nPrimary key: {self.pk}\nCandidate keys: {self.candidate_keys}\nMultivalued attributes: {self.multivalued_attrs}"
-        description += f"\n{self.to_sql()}"
-        return description
+        description = f"Relation: {self.name}\n"
+        description += f"Attributes: {{{', '.join(self.attrs)}}}\n"
+        if self.data_types:
+            description += f"Data types: {{{', '.join(self.data_types)}}}\n"
+        description += f"Primary key: {{{', '.join(self.pk)}}}\n"
+        if self.multivalued_attrs:
+            description += (
+                f"Multivalued attributes: {{{', '.join(self.multivalued_attrs)}}}\n"
+            )
+        for tuple in self.tuples:
+            description += (
+                f"Tuple: {{{', '.join([str(item) for item in tuple])}}}\n".replace(
+                    "[", "{"
+                ).replace("]", "}")
+            )
+        return description.replace("'", "").replace('"', "").removesuffix("\n")
 
     def get_data_type(self, attr: str) -> str:
         if not self.data_types:
