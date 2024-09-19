@@ -1,0 +1,6 @@
+Normalize to: 1NF
+
+Relation: CoffeeShopData
+Attributes: {OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
+Candidate keys: {{OrderID, DrinkID, FoodID}, {TotalCost, TotalDrinkCost}}
+Multivalued attributes: {PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen}

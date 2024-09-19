@@ -1,7 +1,7 @@
 Normalize to: 1NF
 
 Relation: CoffeeShopData
-Attributes: OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen
+Attributes: {OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
+Data types: {INT, DATE, LIST[VARCHAR], FLOAT, FLOAT, FLOAT, INT, VARCHAR, INT, VARCHAR, INT, VARCHAR, LIST[VARCHAR], LIST[VARCHAR], INT, VARCHAR, INT, LIST[VARCHAR], LIST[VARCHAR]}
 Primary key: {OrderID, DrinkID, FoodID}
-Candidate keys: {OrderID, DrinkID, FoodID}, {TotalCost, TotalDrinkCost}
-Multivalued attributes: PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen
+Multivalued attributes: {PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen}

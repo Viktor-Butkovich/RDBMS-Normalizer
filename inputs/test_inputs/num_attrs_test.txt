@@ -1,0 +1,6 @@
+Normalize to: 1NF
+
+Relation: CoffeeShopData
+Attributes: {OrderID, Date, PromocodeUsed}
+Data types: {TEXT, TEXT, TEXT, TEXT}
+Primary key: {OrderID}

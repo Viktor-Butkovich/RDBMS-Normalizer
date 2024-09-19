@@ -1,0 +1,1 @@
+python3 main.py --input_file=1NF_test_1.txt
