@@ -12,13 +12,13 @@ from typing import List
 
 def main(args: List[str]):
     normalize_to, relations = preprocess.process_input(args.input_file)
-    for current_relation in relations:
+    for current_relation in relations.copy():
         current_relation.verify_sql()
 
     if args.output_file:
         output = ""
         with open(args.output_file, "w") as file:
-            output = f"Normalize to: {normalize_to}\n\n"
+            output = f"Normalize to: {normalize_to}"
             for current_relation in relations:
                 output += str(current_relation)
             file.write(output)

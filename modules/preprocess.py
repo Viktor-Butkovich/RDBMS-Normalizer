@@ -30,10 +30,10 @@ def process_input(input_file: str) -> Tuple[str, List[relation.relation]]:
                 f"Invalid normal form {normalize_to} - normal form must be in {valid_normal_forms}"
             )
 
-    relations = []
+    relations_list = []
     while input_data:
-        relations.append(extract_relation(input_data))
-    return normalize_to, relations
+        extract_relation(input_data, relations_list)
+    return normalize_to, relations_list
 
 
 def braces_to_list(braces: str) -> List[str]:
@@ -42,7 +42,9 @@ def braces_to_list(braces: str) -> List[str]:
     ]
 
 
-def extract_relation(input_data: List[str]) -> relation.relation:
+def extract_relation(
+    input_data: List[str], relations_list: List[relation.relation]
+) -> relation.relation:
     if not input_data[0].startswith("Relation:"):
         raise ValueError(
             f"The first field in each relation must be 'Relation: <name>', not {input_data[0]}"
@@ -155,4 +157,4 @@ def extract_relation(input_data: List[str]) -> relation.relation:
             raise ValueError(
                 f"The number of values in tuple <{tuple}> ({len(tuple)}) must match the number of attributes ({len(input_dict['Attributes'])}) in relation {name}"
             )
-    return relation.relation(input_dict)
+    return relation.relation(input_dict, relations_list)
