@@ -1,0 +1,73 @@
+Relation: CoffeeShopPromocodeUsedData
+Attributes: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1002, 2, 3, SUMMERFUN}
+Tuple: {1002, 3, 3, SUMMERFUN}
+Tuple: {1003, 4, 0, SUMMERFUN}
+Tuple: {1003, 4, 0, JUNEVIP}
+
+Relation: CoffeeShopDrinkIngredientData
+Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, DrinkIngredient}
+Tuple: {1001, 1, 0, Espresso}
+Tuple: {1001, 1, 0, Oat Milk}
+Tuple: {1002, 2, 3, Espresso}
+Tuple: {1002, 2, 3, Vanilla Syrup}
+Tuple: {1002, 2, 3, Milk}
+Tuple: {1002, 2, 3, Ice}
+Tuple: {1002, 3, 3, Matcha}
+Tuple: {1002, 3, 3, Coconut Milk}
+Tuple: {1002, 3, 3, Ice}
+Tuple: {1003, 4, 0, Coffee}
+Tuple: {1003, 4, 0, Ice}
+Tuple: {1003, 4, 0, Vanilla Syrup}
+Tuple: {1003, 4, 0, Soy Milk}
+
+Relation: CoffeeShopDrinkAllergenData
+Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Tuple: {1001, 1, 0, Oat}
+Tuple: {1002, 2, 3, Dairy}
+Tuple: {1002, 2, 3, Nuts}
+Tuple: {1002, 3, 3, Nuts}
+Tuple: {1003, 4, 0, Nuts}
+Tuple: {1003, 4, 0, Soy}
+
+Relation: CoffeeShopFoodIngredientData
+Attributes: {OrderID, DrinkID, FoodID, FoodIngredient}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, FoodIngredient}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1003, 4, 0, NONE}
+Tuple: {1002, 2, 3, Flour}
+Tuple: {1002, 2, 3, Sugar}
+Tuple: {1002, 2, 3, Blueberries}
+Tuple: {1002, 2, 3, Eggs}
+Tuple: {1002, 3, 3, Flour}
+Tuple: {1002, 3, 3, Sugar}
+Tuple: {1002, 3, 3, Blueberries}
+Tuple: {1002, 3, 3, Eggs}
+
+Relation: CoffeeShopData
+Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkSize, DrinkQuantity, Milk, FoodID, FoodName, FoodQuantity}
+Data types: {INT, DATE, FLOAT, FLOAT, FLOAT, INT, VARCHAR, INT, VARCHAR, VARCHAR, INT, VARCHAR, INT, VARCHAR, INT}
+Primary key: {OrderID, DrinkID, FoodID}
+Tuple: {1001, 6/30/2024, 7.25, 7.25, 0.00, 1, Alice Brown, 1, Caffe Latte, Grande, 1, ND, 0, NULL, 0}
+Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2, David Miller, 2, Iced Caramel Macchiato, Tall, 2, ND, 3, Blueberry Muffin, 1}
+Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2, David Miller, 3, Iced Matcha Latte, Grande, 1, ND, 3, Blueberry Muffin, 1}
+Tuple: {1003, 6/29/2024, 115.00, 115.00, 0.00, 3, Emily Garcia, 4, Vanilla Bean Frappuccino, Venti, 8, ND, 0, NULL, 0}
+
+Relation: CoffeeShopFoodAllergenData
+Attributes: {OrderID, DrinkID, FoodID, FoodAllergen}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, FoodAllergen}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1003, 4, 0, NONE}
+Tuple: {1002, 2, 3, Wheat}
+Tuple: {1002, 2, 3, Egg}
+Tuple: {1002, 3, 3, Wheat}
+Tuple: {1002, 3, 3, Egg}

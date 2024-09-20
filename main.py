@@ -15,6 +15,21 @@ def zero_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    for original_relation in relations.copy():
+        current_relation = original_relation
+        while current_relation.multivalued_attrs:
+            mva = current_relation.multivalued_attrs[0]
+            decomposed_name = (
+                f"{current_relation.name.removesuffix('Data')}{mva}Data"
+                if current_relation.name.endswith("Data")
+                else f"{mva}{current_relation.name}"
+            )
+            current_relation, decomposed_relation = current_relation.decompose(
+                [mva],
+                omit=list(set(current_relation.multivalued_attrs) - {mva}),
+                name=decomposed_name,
+            )
+            decomposed_relation.split_mva(mva)
     return relations
 
 
@@ -66,7 +81,7 @@ def main(args: List[str]):
         with open(args.output_file, "w") as file:
             for current_relation in relations:
                 output += str(current_relation)
-            file.write(output.removesuffix("\n"))
+            file.write(output.removesuffix("\n\n"))
         print(f"Wrote output to {args.output_file}")
     else:
         for current_relation in relations:

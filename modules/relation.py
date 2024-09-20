@@ -15,6 +15,18 @@ class relation:
         self.tuples = input_dict.get("Tuples", [])
         self.verify_sql()
 
+    def split_mva(self, mva: str) -> None:
+        index = self.attrs.index(mva)
+        self.data_types[index] = "VARCHAR"
+        self.multivalued_attrs.remove(mva)
+        for current_tuple in self.tuples.copy():
+            if current_tuple[index] not in ["NULL", "NONE", "Null", "None"]:
+                for value in current_tuple[index]:
+                    new_tuple = current_tuple.copy()
+                    new_tuple[index] = value
+                    self.tuples.append(new_tuple)
+                self.tuples.remove(current_tuple)
+
     def __str__(self) -> str:
         description = f"Relation: {self.name}\n"
         description += f"Attributes: {{{', '.join(self.attrs)}}}\n"
@@ -39,12 +51,14 @@ class relation:
                     "[", "{"
                 ).replace("]", "}")
             )
-        return description.replace("'", "").replace('"', "")
+        return description.replace("'", "").replace('"', "") + "\n"
 
-    def decompose(self, attrs: List[str]) -> Tuple["relation", "relation"]:
+    def decompose(
+        self, attrs: List[str], omit: List[str], name: str = None
+    ) -> Tuple["relation", "relation"]:
         seen = set()
         decomposed_attrs = [
-            x for x in self.pk + attrs if not (x in seen or seen.add(x))
+            x for x in self.pk + attrs if not (x in seen or seen.add(x) or x in omit)
         ]
         decomposed_data_types = [self.get_data_type(attr) for attr in decomposed_attrs]
         decomposed_candidate_keys = [
@@ -63,6 +77,8 @@ class relation:
             ]
             if new_tuple not in decomposed_tuples:
                 decomposed_tuples.append(new_tuple)
+        if not name:
+            name = f"{self.name}_decomposed"
 
         retained_attrs = [
             x for x in self.attrs if (x not in decomposed_attrs) or (x in self.pk)
@@ -83,7 +99,6 @@ class relation:
             ]
             if new_tuple not in retained_tuples:
                 retained_tuples.append(new_tuple)
-
         self.relations_list.remove(self)
         retained_relation = relation(
             {
@@ -99,7 +114,7 @@ class relation:
         )
         decomposed_relation = relation(
             {
-                "Name": f"{self.name}_decomposed",
+                "Name": name,
                 "Attributes": decomposed_attrs,
                 "Primary key": decomposed_attrs,
                 "Candidate keys": decomposed_candidate_keys,
