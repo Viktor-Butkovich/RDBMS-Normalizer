@@ -1,5 +1,3 @@
-Normalize to: 1NF
-
 Relation: CoffeeShopData
 Attributes: {OrderID, Date, PromocodeUsed}
 Data types: {INT, DATE, LIST[VARCHAR]}

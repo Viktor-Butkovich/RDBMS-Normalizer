@@ -1,10 +1,7 @@
-Normalize to: 1NF
-
 Relation: CoffeeShopData
-Attributes: {OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName, DrinkID, DrinkSize, DrinkName, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
+Attributes: {OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName, DrinkID, DrinkName, DrinkSize, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen, FoodID, FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
 Data types: {INT, DATE, LIST[VARCHAR], FLOAT, FLOAT, FLOAT, INT, VARCHAR, INT, VARCHAR, VARCHAR, INT, VARCHAR, LIST[VARCHAR], LIST[VARCHAR], INT, VARCHAR, INT, LIST[VARCHAR], LIST[VARCHAR]}
 Primary key: {OrderID, DrinkID, FoodID}
-Candidate keys: {{OrderID, DrinkID, FoodID, CustomerID}, {OrderID, DrinkID, FoodID, CustomerID, PromocodeUsed}}
 Multivalued attributes: {PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen}
 Tuple: {1001, 6/30/2024, NONE, 7.25, 7.25, 0.00, 1, Alice Brown, 1, Caffe Latte, Grande, 1, ND, {Espresso, Oat Milk}, {Oat}, 0, NULL, 0, NONE, NONE}
 Tuple: {1002, 6/30/2026, SUMMERFUN, 9.98, 5.99, 3.99, 2, David Miller, 2, Iced Caramel Macchiato, Tall, 2, ND, {Espresso, Vanilla Syrup, Milk, Ice}, {Dairy, Nuts}, 3, Blueberry Muffin, 1, {Flour, Sugar, Blueberries, Eggs}, {Wheat, Egg}}

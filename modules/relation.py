@@ -13,9 +13,10 @@ class relation:
         self.multivalued_attrs = input_dict.get("Multivalued attributes", [])
         self.data_types = input_dict.get("Data types", [])
         self.tuples = input_dict.get("Tuples", [])
+        self.verify_sql()
 
     def __str__(self) -> str:
-        description = f"\n\nRelation: {self.name}\n"
+        description = f"Relation: {self.name}\n"
         description += f"Attributes: {{{', '.join(self.attrs)}}}\n"
         if self.data_types:
             description += f"Data types: {{{', '.join(self.data_types)}}}\n"
@@ -38,7 +39,7 @@ class relation:
                     "[", "{"
                 ).replace("]", "}")
             )
-        return description.replace("'", "").replace('"', "").removesuffix("\n")
+        return description.replace("'", "").replace('"', "")
 
     def decompose(self, attrs: List[str]) -> Tuple["relation", "relation"]:
         seen = set()

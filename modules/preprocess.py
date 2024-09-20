@@ -1,8 +1,6 @@
 from . import relation
 from typing import List, Tuple
 
-valid_normal_forms = ["0NF", "1NF", "2NF", "3NF", "BCNF", "4NF", "5NF"]
-
 
 def read_input_file(file_path: str) -> List[str]:
     with open(file_path, "r") as file:
@@ -10,30 +8,13 @@ def read_input_file(file_path: str) -> List[str]:
     return data
 
 
-def process_input(input_file: str) -> Tuple[str, List[relation.relation]]:
+def process_input(input_file: str) -> List[relation.relation]:
     input_data = read_input_file(f"{input_file}").split("\n")
     input_data = [line for line in input_data if line.strip()]  # Remove empty lines
-
-    normalize_to = input_data.pop(0)
-    if not normalize_to.startswith("Normalize to:"):
-        raise ValueError("First line of input file must be 'Normalize to:'")
-    normalize_to = normalize_to.removeprefix(
-        "Normalize to:"
-    ).strip()  # 0NF, 1NF, 2NF, etc.
-    if not normalize_to in valid_normal_forms:
-        if normalize_to == "":
-            raise ValueError(
-                f"Missing normal form - normal form must be in {valid_normal_forms}"
-            )
-        else:
-            raise ValueError(
-                f"Invalid normal form {normalize_to} - normal form must be in {valid_normal_forms}"
-            )
-
     relations_list = []
     while input_data:
         extract_relation(input_data, relations_list)
-    return normalize_to, relations_list
+    return relations_list
 
 
 def braces_to_list(braces: str) -> List[str]:
