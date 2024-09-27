@@ -34,6 +34,7 @@ def extract_relation(
     input_dict = {
         "Name": name,
         "Tuples": [],
+        "Foreign keys": [],
     }
     relation_fields = []
     while input_data and not input_data[0].startswith("Relation:"):
@@ -42,6 +43,7 @@ def extract_relation(
         "Attributes",
         "Primary key",
         "Candidate keys",
+        "Foreign key",
         "Multivalued attributes",
         "Data types",
         "Tuple",
@@ -55,7 +57,26 @@ def extract_relation(
             raise ValueError(f"Invalid field {field.split(':')[0]} in relation {name}")
         field_name = field.split(":")[0].strip()
         field_value = field.split(":")[1].strip()
-        if field_name == "Tuple":
+        if field_name == "Foreign key":
+            foreign_key_parts = field_value.split("REFERENCES")
+            if len(foreign_key_parts) != 2:
+                raise ValueError(f"Invalid foreign key format in relation {name}")
+
+            key_attrs = foreign_key_parts[0].strip().strip("()").split(", ")
+            references = foreign_key_parts[1].strip().split("(")
+            if len(references) != 2:
+                raise ValueError(
+                    f"Invalid foreign key reference format in relation {name}"
+                )
+
+            referenced_table = references[0].strip()
+            referenced_attrs = references[1].strip().strip("()").split(", ")
+
+            input_dict["Foreign keys"].append(
+                (key_attrs, referenced_table, referenced_attrs)
+            )
+
+        elif field_name == "Tuple":
             if not (field_value.startswith("{") and field_value.endswith("}")):
                 raise ValueError(
                     f"Invalid syntax - {field_name} must be formatted as {{___, ___, ___}} in relation {name}"

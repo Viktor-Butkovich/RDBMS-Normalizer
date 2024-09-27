@@ -3,6 +3,10 @@ Run with:
 ./scripts/main.bat inputs/input_file.txt outputs/output_file.txt 1NF
 or
 python3 main.py --input_file=inputs/input.txt --output_file=outputs/output.txt --normal_form=0NF
+Test scripts:
+.\scripts\main.bat inputs/0NF_test_1.txt outputs/0NF_target_1.txt 0NF
+.\scripts\main.bat inputs/0NF_test_1.txt outputs/1NF_target_1.txt 1NF
+.\scripts\main.bat inputs/0NF_test_1.txt stdio 2NF
 """
 
 import argparse
@@ -76,7 +80,7 @@ def main(args: List[str]):
         if normal_form == args.normal_form:
             break
 
-    if args.output_file:
+    if args.output_file and args.output_file != "stdio":
         output = ""
         with open(args.output_file, "w") as file:
             for current_relation in relations:

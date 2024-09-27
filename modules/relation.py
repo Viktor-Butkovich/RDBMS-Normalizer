@@ -10,6 +10,7 @@ class relation:
         self.attrs = input_dict["Attributes"]
         self.pk = input_dict["Primary key"]
         self.candidate_keys = input_dict["Candidate keys"]
+        self.foreign_keys = input_dict.get("Foreign keys", [])
         self.multivalued_attrs = input_dict.get("Multivalued attributes", [])
         self.data_types = input_dict.get("Data types", [])
         self.tuples = input_dict.get("Tuples", [])
@@ -40,6 +41,9 @@ class relation:
                 + f"{{{'}, {'.join([', '.join(key) for key in self.candidate_keys])}}}"
                 + "}\n"
             )
+        if self.foreign_keys:
+            for fk in self.foreign_keys:
+                description += f"Foreign key: ({', '.join(fk[0])}) REFERENCES {fk[1]}({', '.join(fk[2])})\n"
         if self.multivalued_attrs:
             description += (
                 f"Multivalued attributes: {{{', '.join(self.multivalued_attrs)}}}\n"
@@ -67,6 +71,10 @@ class relation:
             if all([attr in decomposed_attrs for attr in key])
             and key != decomposed_attrs
         ]
+        decomposed_foreign_keys = self.foreign_keys.copy()
+        decomposed_foreign_keys.append(
+            (self.pk.copy(), self.name, self.pk.copy())
+        )  # Foreign key in format (attributes, referenced relation, referenced attributes)
         decomposed_multivalued_attrs = [
             attr for attr in self.multivalued_attrs if attr in decomposed_attrs
         ]
@@ -121,6 +129,7 @@ class relation:
                 "Multivalued attributes": decomposed_multivalued_attrs,
                 "Data types": decomposed_data_types,
                 "Tuples": decomposed_tuples,
+                "Foreign keys": decomposed_foreign_keys,
             },
             self.relations_list,
         )
@@ -135,8 +144,11 @@ class relation:
         sql = f"CREATE TABLE {self.name} (\n"
         for attr in self.attrs:
             sql += f"    {attr} {self.get_data_type(attr)},\n"
-        sql += f"    PRIMARY KEY ({', '.join(self.pk)})\n"
-        sql += ");"
+        sql += f"    PRIMARY KEY ({', '.join(self.pk)}),\n"
+        for key in self.foreign_keys:
+            sql += f"    FOREIGN KEY ({', '.join(key[0])}) REFERENCES {key[1]}({', '.join(key[2])}),\n"
+        sql = sql.removesuffix(",\n")  # Remove trailing comma
+        sql += "\n);"
         return sql
 
     def verify_sql(self) -> str:

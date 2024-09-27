@@ -4,6 +4,16 @@ from modules import preprocess
 
 
 class test_process_input(unittest.TestCase):
+    def test_foreign_key_formatting(self):
+        with self.assertRaises(ValueError) as context:
+            preprocess.process_input(
+                "inputs/test_inputs/foreign_key_formatting_test.txt"
+            )
+        self.assertEqual(
+            str(context.exception),
+            "Invalid foreign key format in relation CoffeeShopPromocodeUsedData",
+        )
+
     def test_missing_braces(self):
         with self.assertRaises(ValueError) as context:
             preprocess.process_input("inputs/test_inputs/missing_braces_test.txt")

@@ -2,7 +2,7 @@ Relation: CoffeeShopPromocodeUsedData
 Attributes: {OrderID, DrinkID, FoodID, PromocodeUsed}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, PromocodeUsed}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: (OrderID, DrinkID, FoodID) REFERENCEoffeeShopData(OrderID, DrinkID, FoodID)
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1002, 2, 3, SUMMERFUN}
 Tuple: {1002, 3, 3, SUMMERFUN}
