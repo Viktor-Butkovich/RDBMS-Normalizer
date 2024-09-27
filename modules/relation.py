@@ -24,6 +24,9 @@ class relation:
         self.tuples: List[List[str]] = input_dict.get("Tuples", [])
         self.verify_sql()
 
+    def detect_mvd(self) -> None:
+        return
+
     def split_mva(self, mva: str) -> None:
         index = self.attrs.index(mva)
         self.data_types[index] = "VARCHAR"
@@ -94,7 +97,11 @@ class relation:
             if all(
                 [attr in decomposed_attrs for attr in fd[0]]
             ):  # If all determining attributes remain
-                determined = [attr for attr in fd[1] if attr in decomposed_attrs]
+                determined = [
+                    attr
+                    for attr in fd[1]
+                    if attr in decomposed_attrs and not attr in self.multivalued_attrs
+                ]
                 if determined:  # Keep any determined attributes that remain
                     decomposed_functional_dependencies.append(
                         (fd[0].copy(), determined)
@@ -102,7 +109,10 @@ class relation:
         decomposed_multivalued_dependencies = []
         for fd in self.multivalued_dependencies:
             if all(
-                [attr in decomposed_attrs for attr in fd[0] + fd[1]]
+                [
+                    attr in decomposed_attrs and not attr in self.multivalued_attrs
+                    for attr in fd[0] + fd[1]
+                ]
             ):  # If all determining/determined attributes remain
                 decomposed_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
         decomposed_multivalued_attrs = [
@@ -136,13 +146,20 @@ class relation:
             if all(
                 [attr in retained_attrs for attr in fd[0]]
             ):  # If all determining attributes remain
-                determined = [attr for attr in fd[1] if attr in retained_attrs]
+                determined = [
+                    attr
+                    for attr in fd[1]
+                    if attr in retained_attrs and not attr in self.multivalued_attrs
+                ]
                 if determined:  # Keep any determined attributes that remain
                     retained_functional_dependencies.append((fd[0].copy(), determined))
         retained_multivalued_dependencies = []
         for fd in self.multivalued_dependencies:
             if all(
-                [attr in retained_attrs for attr in fd[0] + fd[1]]
+                [
+                    attr in retained_attrs and not attr in self.multivalued_attrs
+                    for attr in fd[0] + fd[1]
+                ]
             ):  # If all determining/determined attributes remain
                 retained_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
         retained_tuples = []

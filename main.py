@@ -34,6 +34,7 @@ def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
                 name=decomposed_name,
             )
             decomposed_relation.split_mva(mva)
+            decomposed_relation.detect_mvd()
     return relations
 
 

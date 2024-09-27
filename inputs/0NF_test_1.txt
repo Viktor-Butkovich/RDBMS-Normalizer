@@ -3,6 +3,12 @@ Attributes: {OrderID, Date, PromocodeUsed, TotalCost, TotalDrinkCost, TotalFoodC
 Data types: {INT, DATE, LIST[VARCHAR], FLOAT, FLOAT, FLOAT, INT, VARCHAR, INT, VARCHAR, VARCHAR, INT, VARCHAR, LIST[VARCHAR], LIST[VARCHAR], INT, VARCHAR, INT, LIST[VARCHAR], LIST[VARCHAR]}
 Primary key: {OrderID, DrinkID, FoodID}
 Multivalued attributes: {PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen}
+Functional dependency: {OrderID} -> {PromocodeUsed, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName}
+Functional dependency: {OrderID, DrinkID} -> {DrinkName, DrinkSize, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen} // maybe more
+Functional dependency: {OrderID, FoodID} -> {FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
+Functional dependency: {CustomerID} -> {CustomerName}
+Functional dependency: {DrinkID} -> {DrinkName}
+Functional dependency: {FoodID} -> {FoodName}
 Tuple: {1001, 6/30/2024, NONE, 7.25, 7.25, 0.00, 1, Alice Brown, 1, Caffe Latte, Grande, 1, ND, {Espresso, Oat Milk}, {Oat}, 0, NULL, 0, NONE, NONE}
 Tuple: {1002, 6/30/2026, {SUMMERFUN}, 9.98, 5.99, 3.99, 2, David Miller, 2, Iced Caramel Macchiato, Tall, 2, ND, {Espresso, Vanilla Syrup, Milk, Ice}, {Dairy, Nuts}, 3, Blueberry Muffin, 1, {Flour, Sugar, Blueberries, Eggs}, {Wheat, Egg}}
 Tuple: {1002, 6/30/2026, {SUMMERFUN}, 9.98, 5.99, 3.99, 2, David Miller, 3, Iced Matcha Latte, Grande, 1, ND, {Matcha, Coconut Milk, Ice}, {Nuts}, 3, Blueberry Muffin, 1, {Flour, Sugar, Blueberries, Eggs}, {Wheat, Egg}}
