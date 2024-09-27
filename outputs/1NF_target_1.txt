@@ -2,7 +2,7 @@ Relation: CoffeeShopPromocodeUsedData
 Attributes: {OrderID, DrinkID, FoodID, PromocodeUsed}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, PromocodeUsed}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: {OrderID, DrinkID, FoodID} -> CoffeeShopData{OrderID, DrinkID, FoodID}
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1002, 2, 3, SUMMERFUN}
 Tuple: {1002, 3, 3, SUMMERFUN}
@@ -13,7 +13,7 @@ Relation: CoffeeShopDrinkIngredientData
 Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, DrinkIngredient}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: {OrderID, DrinkID, FoodID} -> CoffeeShopData{OrderID, DrinkID, FoodID}
 Tuple: {1001, 1, 0, Espresso}
 Tuple: {1001, 1, 0, Oat Milk}
 Tuple: {1002, 2, 3, Espresso}
@@ -32,7 +32,7 @@ Relation: CoffeeShopDrinkAllergenData
 Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: {OrderID, DrinkID, FoodID} -> CoffeeShopData{OrderID, DrinkID, FoodID}
 Tuple: {1001, 1, 0, Oat}
 Tuple: {1002, 2, 3, Dairy}
 Tuple: {1002, 2, 3, Nuts}
@@ -44,7 +44,7 @@ Relation: CoffeeShopFoodIngredientData
 Attributes: {OrderID, DrinkID, FoodID, FoodIngredient}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, FoodIngredient}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: {OrderID, DrinkID, FoodID} -> CoffeeShopData{OrderID, DrinkID, FoodID}
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1003, 4, 0, NONE}
 Tuple: {1002, 2, 3, Flour}
@@ -69,7 +69,7 @@ Relation: CoffeeShopFoodAllergenData
 Attributes: {OrderID, DrinkID, FoodID, FoodAllergen}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, FoodAllergen}
-Foreign key: (OrderID, DrinkID, FoodID) REFERENCES CoffeeShopData(OrderID, DrinkID, FoodID)
+Foreign key: {OrderID, DrinkID, FoodID} -> CoffeeShopData{OrderID, DrinkID, FoodID}
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1003, 4, 0, NONE}
 Tuple: {1002, 2, 3, Wheat}

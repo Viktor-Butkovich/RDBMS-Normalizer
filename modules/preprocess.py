@@ -35,6 +35,8 @@ def extract_relation(
         "Name": name,
         "Tuples": [],
         "Foreign keys": [],
+        "Functional dependencies": [],
+        "Multivalued dependencies": [],
     }
     relation_fields = []
     while input_data and not input_data[0].startswith("Relation:"):
@@ -44,6 +46,8 @@ def extract_relation(
         "Primary key",
         "Candidate keys",
         "Foreign key",
+        "Functional dependency",
+        "Multivalued dependency",
         "Multivalued attributes",
         "Data types",
         "Tuple",
@@ -57,20 +61,69 @@ def extract_relation(
             raise ValueError(f"Invalid field {field.split(':')[0]} in relation {name}")
         field_name = field.split(":")[0].strip()
         field_value = field.split(":")[1].strip()
-        if field_name == "Foreign key":
-            foreign_key_parts = field_value.split("REFERENCES")
-            if len(foreign_key_parts) != 2:
-                raise ValueError(f"Invalid foreign key format in relation {name}")
 
-            key_attrs = foreign_key_parts[0].strip().strip("()").split(", ")
-            references = foreign_key_parts[1].strip().split("(")
+        if field_name == "Multivalued dependency":
+            if not "->" in field_value:
+                raise ValueError(
+                    f"Invalid multivalued dependency format in relation {name}. Format must be {{attribute1, attribute2}} -->> {{attribute1, attribute2}}"
+                )
+            functional_dependency_parts = field_value.split("-->>")
+            if len(functional_dependency_parts) != 2:
+                raise ValueError(
+                    f"Invalid multivalued dependency format in relation {name}. Format must be {{attribute1, attribute2}} -->> {{attribute1, attribute2}}"
+                )
+            determines_attrs = (
+                functional_dependency_parts[0].strip().strip("{}").split(", ")
+            )
+            determined_attrs = (
+                functional_dependency_parts[1].strip().strip("{}").split(", ")
+            )
+
+            input_dict["Multivalued dependencies"].append(
+                (determines_attrs, determined_attrs)
+            )
+
+        elif field_name == "Functional dependency":
+            if not "->" in field_value:
+                raise ValueError(
+                    f"Invalid functional dependency format in relation {name}. Format must be {{attribute1, attribute2}} -> {{attribute1, attribute2}}"
+                )
+            functional_dependency_parts = field_value.split("->")
+            if len(functional_dependency_parts) != 2:
+                raise ValueError(
+                    f"Invalid functional dependency format in relation {name}. Format must be {{attribute1, attribute2}} -> {{attribute1, attribute2}}"
+                )
+            determines_attrs = (
+                functional_dependency_parts[0].strip().strip("{}").split(", ")
+            )
+            determined_attrs = (
+                functional_dependency_parts[1].strip().strip("{}").split(", ")
+            )
+
+            input_dict["Functional dependencies"].append(
+                (determines_attrs, determined_attrs)
+            )
+
+        elif field_name == "Foreign key":
+            if not "->" in field_value:
+                raise ValueError(
+                    f"Invalid foreign key format in relation {name}. Format must be {{attribute1, attribute2}} -> relation{{attribute1, attribute2}}"
+                )
+            foreign_key_parts = field_value.split("->")
+            if len(foreign_key_parts) != 2:
+                raise ValueError(
+                    f"Invalid foreign key format in relation {name}. Format must be {{attribute1, attribute2}} -> relation{{attribute1, attribute2}}"
+                )
+
+            key_attrs = foreign_key_parts[0].strip().strip("{}").split(", ")
+            references = foreign_key_parts[1].strip().split("{")
             if len(references) != 2:
                 raise ValueError(
-                    f"Invalid foreign key reference format in relation {name}"
+                    f"Invalid foreign key format in relation {name}. Format must be {{attribute1, attribute2}} -> relation{{attribute1, attribute2}}"
                 )
 
             referenced_table = references[0].strip()
-            referenced_attrs = references[1].strip().strip("()").split(", ")
+            referenced_attrs = references[1].strip().strip("{}").split(", ")
 
             input_dict["Foreign keys"].append(
                 (key_attrs, referenced_table, referenced_attrs)

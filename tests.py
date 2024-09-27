@@ -4,6 +4,26 @@ from modules import preprocess
 
 
 class test_process_input(unittest.TestCase):
+    def test_functional_dependency_formatting(self):
+        with self.assertRaises(ValueError) as context:
+            preprocess.process_input(
+                "inputs/test_inputs/functional_dependency_formatting_test.txt"
+            )
+        self.assertEqual(
+            str(context.exception),
+            "Invalid functional dependency format in relation CoffeeShopPromocodeUsedData. Format must be {attribute1, attribute2} -> {attribute1, attribute2}",
+        )
+
+    def test_multivalued_dependency_formatting(self):
+        with self.assertRaises(ValueError) as context:
+            preprocess.process_input(
+                "inputs/test_inputs/multivalued_dependency_formatting_test.txt"
+            )
+        self.assertEqual(
+            str(context.exception),
+            "Invalid multivalued dependency format in relation CoffeeShopFoodAllergenData. Format must be {attribute1, attribute2} -->> {attribute1, attribute2}",
+        )
+
     def test_foreign_key_formatting(self):
         with self.assertRaises(ValueError) as context:
             preprocess.process_input(
@@ -11,7 +31,7 @@ class test_process_input(unittest.TestCase):
             )
         self.assertEqual(
             str(context.exception),
-            "Invalid foreign key format in relation CoffeeShopPromocodeUsedData",
+            "Invalid foreign key format in relation CoffeeShopPromocodeUsedData. Format must be {attribute1, attribute2} -> relation{attribute1, attribute2}",
         )
 
     def test_missing_braces(self):

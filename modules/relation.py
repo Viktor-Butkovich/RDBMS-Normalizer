@@ -6,14 +6,22 @@ class relation:
     def __init__(self, input_dict: dict, relations_list: List["relation"]) -> None:
         self.relations_list = relations_list
         self.relations_list.append(self)
-        self.name = input_dict["Name"]
-        self.attrs = input_dict["Attributes"]
-        self.pk = input_dict["Primary key"]
-        self.candidate_keys = input_dict["Candidate keys"]
-        self.foreign_keys = input_dict.get("Foreign keys", [])
-        self.multivalued_attrs = input_dict.get("Multivalued attributes", [])
-        self.data_types = input_dict.get("Data types", [])
-        self.tuples = input_dict.get("Tuples", [])
+        self.name: str = input_dict["Name"]
+        self.attrs: List[str] = input_dict["Attributes"]
+        self.pk: List[str] = input_dict["Primary key"]
+        self.candidate_keys: List[List[str]] = input_dict["Candidate keys"]
+        self.foreign_keys: List[Tuple[List[str], str, List[str]]] = input_dict.get(
+            "Foreign keys", []
+        )
+        self.functional_dependencies: List[
+            Tuple[List[str], List[str]]
+        ] = input_dict.get("Functional dependencies", [])
+        self.multivalued_dependencies: List[
+            Tuple[List[str], List[str]]
+        ] = input_dict.get("Multivalued dependencies", [])
+        self.multivalued_attrs: List[str] = input_dict.get("Multivalued attributes", [])
+        self.data_types: List[str] = input_dict.get("Data types", [])
+        self.tuples: List[List[str]] = input_dict.get("Tuples", [])
         self.verify_sql()
 
     def split_mva(self, mva: str) -> None:
@@ -43,11 +51,17 @@ class relation:
             )
         if self.foreign_keys:
             for fk in self.foreign_keys:
-                description += f"Foreign key: ({', '.join(fk[0])}) REFERENCES {fk[1]}({', '.join(fk[2])})\n"
+                description += f"Foreign key: {{{', '.join(fk[0])}}} -> {fk[1]}{{{', '.join(fk[2])}}}\n"
         if self.multivalued_attrs:
             description += (
                 f"Multivalued attributes: {{{', '.join(self.multivalued_attrs)}}}\n"
             )
+        if self.functional_dependencies:
+            for fd in self.functional_dependencies:
+                description += f"Functional dependency: {{{', '.join(fd[0])}}} -> {{{', '.join(fd[1])}}}\n"
+        if self.multivalued_dependencies:
+            for mvd in self.multivalued_dependencies:
+                description += f"Multivalued dependency: {{{', '.join(mvd[0])}}} -->> {{{', '.join(mvd[1])}}}\n"
 
         for tuple in self.tuples:
             description += (
@@ -75,6 +89,22 @@ class relation:
         decomposed_foreign_keys.append(
             (self.pk.copy(), self.name, self.pk.copy())
         )  # Foreign key in format (attributes, referenced relation, referenced attributes)
+        decomposed_functional_dependencies = []
+        for fd in self.functional_dependencies:
+            if all(
+                [attr in decomposed_attrs for attr in fd[0]]
+            ):  # If all determining attributes remain
+                determined = [attr for attr in fd[1] if attr in decomposed_attrs]
+                if determined:  # Keep any determined attributes that remain
+                    decomposed_functional_dependencies.append(
+                        (fd[0].copy(), determined)
+                    )
+        decomposed_multivalued_dependencies = []
+        for fd in self.multivalued_dependencies:
+            if all(
+                [attr in decomposed_attrs for attr in fd[0] + fd[1]]
+            ):  # If all determining/determined attributes remain
+                decomposed_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
         decomposed_multivalued_attrs = [
             attr for attr in self.multivalued_attrs if attr in decomposed_attrs
         ]
@@ -97,9 +127,24 @@ class relation:
             for key in self.candidate_keys
             if all([attr in retained_attrs for attr in key]) and key != self.pk
         ]
+        retained_foreign_keys = self.foreign_keys.copy()
         retained_multivalued_attrs = [
             attr for attr in self.multivalued_attrs if attr in retained_attrs
         ]
+        retained_functional_dependencies = []
+        for fd in self.functional_dependencies:
+            if all(
+                [attr in retained_attrs for attr in fd[0]]
+            ):  # If all determining attributes remain
+                determined = [attr for attr in fd[1] if attr in retained_attrs]
+                if determined:  # Keep any determined attributes that remain
+                    retained_functional_dependencies.append((fd[0].copy(), determined))
+        retained_multivalued_dependencies = []
+        for fd in self.multivalued_dependencies:
+            if all(
+                [attr in retained_attrs for attr in fd[0] + fd[1]]
+            ):  # If all determining/determined attributes remain
+                retained_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
         retained_tuples = []
         for current_tuple in self.tuples:
             new_tuple = [
@@ -117,6 +162,9 @@ class relation:
                 "Multivalued attributes": retained_multivalued_attrs,
                 "Data types": retained_data_types,
                 "Tuples": retained_tuples,
+                "Foreign keys": retained_foreign_keys,
+                "Functional dependencies": retained_functional_dependencies,
+                "Multivalued dependencies": retained_multivalued_dependencies,
             },
             self.relations_list,
         )
@@ -130,6 +178,8 @@ class relation:
                 "Data types": decomposed_data_types,
                 "Tuples": decomposed_tuples,
                 "Foreign keys": decomposed_foreign_keys,
+                "Functional dependencies": decomposed_functional_dependencies,
+                "Multivalued dependencies": decomposed_multivalued_dependencies,
             },
             self.relations_list,
         )

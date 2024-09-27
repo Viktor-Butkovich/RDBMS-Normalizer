@@ -6,7 +6,7 @@ python3 main.py --input_file=inputs/input.txt --output_file=outputs/output.txt -
 Test scripts:
 .\scripts\main.bat inputs/0NF_test_1.txt outputs/0NF_target_1.txt 0NF
 .\scripts\main.bat inputs/0NF_test_1.txt outputs/1NF_target_1.txt 1NF
-.\scripts\main.bat inputs/0NF_test_1.txt stdio 2NF
+.\scripts\main.bat inputs/1NF_test_1.txt outputs/2NF_target_1.txt 2NF
 """
 
 import argparse
