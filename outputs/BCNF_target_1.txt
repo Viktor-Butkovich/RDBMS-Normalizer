@@ -1,0 +1,134 @@
+Relation: CoffeeShopPromocodeUsedData
+Attributes: {OrderID, PromocodeUsed}
+Data types: {INT, VARCHAR}
+Primary key: {OrderID, PromocodeUsed}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, NONE}
+Tuple: {1002, SUMMERFUN}
+Tuple: {1003, SUMMERFUN}
+Tuple: {1003, JUNEVIP}
+
+Relation: CoffeeShopDrinkIngredientData
+Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, DrinkIngredient}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkIngredient}
+Tuple: {1001, 1, 0, Espresso}
+Tuple: {1001, 1, 0, Oat Milk}
+Tuple: {1002, 2, 3, Espresso}
+Tuple: {1002, 2, 3, Vanilla Syrup}
+Tuple: {1002, 2, 3, Milk}
+Tuple: {1002, 2, 3, Ice}
+Tuple: {1002, 3, 3, Matcha}
+Tuple: {1002, 3, 3, Coconut Milk}
+Tuple: {1002, 3, 3, Ice}
+Tuple: {1003, 4, 0, Coffee}
+Tuple: {1003, 4, 0, Ice}
+Tuple: {1003, 4, 0, Vanilla Syrup}
+Tuple: {1003, 4, 0, Soy Milk}
+
+Relation: CoffeeShopDrinkAllergenData
+Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkAllergen}
+Tuple: {1001, 1, 0, Oat}
+Tuple: {1002, 2, 3, Dairy}
+Tuple: {1002, 2, 3, Nuts}
+Tuple: {1002, 3, 3, Nuts}
+Tuple: {1003, 4, 0, Nuts}
+Tuple: {1003, 4, 0, Soy}
+
+Relation: CoffeeShopFoodIngredientData
+Attributes: {OrderID, DrinkID, FoodID, FoodIngredient}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, FoodIngredient}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodIngredient}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1003, 4, 0, NONE}
+Tuple: {1002, 2, 3, Flour}
+Tuple: {1002, 2, 3, Sugar}
+Tuple: {1002, 2, 3, Blueberries}
+Tuple: {1002, 2, 3, Eggs}
+Tuple: {1002, 3, 3, Flour}
+Tuple: {1002, 3, 3, Sugar}
+Tuple: {1002, 3, 3, Blueberries}
+Tuple: {1002, 3, 3, Eggs}
+
+Relation: CoffeeShopFoodAllergenData
+Attributes: {OrderID, DrinkID, FoodID, FoodAllergen}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, FoodAllergen}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodAllergen}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1003, 4, 0, NONE}
+Tuple: {1002, 2, 3, Wheat}
+Tuple: {1002, 2, 3, Egg}
+Tuple: {1002, 3, 3, Wheat}
+Tuple: {1002, 3, 3, Egg}
+
+Relation: CoffeeShopOrderData
+Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID}
+Data types: {INT, DATE, FLOAT, FLOAT, FLOAT, INT}
+Primary key: {OrderID}
+Tuple: {1001, 6/30/2024, 7.25, 7.25, 0.00, 1}
+Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2}
+Tuple: {1003, 6/29/2024, 115.00, 115.00, 0.00, 3}
+
+Relation: CoffeeShopDrinkData
+Attributes: {OrderID, DrinkID, DrinkSize, DrinkQuantity, Milk}
+Data types: {INT, INT, VARCHAR, INT, VARCHAR}
+Primary key: {OrderID, DrinkID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 1, Grande, 1, ND}
+Tuple: {1002, 2, Tall, 2, ND}
+Tuple: {1002, 3, Grande, 1, ND}
+Tuple: {1003, 4, Venti, 8, ND}
+
+Relation: CoffeeShopFoodData
+Attributes: {OrderID, FoodID, FoodQuantity}
+Data types: {INT, INT, INT}
+Primary key: {OrderID, FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 0, 0}
+Tuple: {1002, 3, 1}
+Tuple: {1003, 0, 0}
+
+Relation: CoffeeShopDrinkDrinkData
+Attributes: {DrinkID, DrinkName}
+Data types: {INT, VARCHAR}
+Primary key: {DrinkID}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Tuple: {1, Caffe Latte}
+Tuple: {2, Iced Caramel Macchiato}
+Tuple: {3, Iced Matcha Latte}
+Tuple: {4, Vanilla Bean Frappuccino}
+
+Relation: CoffeeShopFoodFoodData
+Attributes: {FoodID, FoodName}
+Data types: {INT, VARCHAR}
+Primary key: {FoodID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Tuple: {0, NULL}
+Tuple: {3, Blueberry Muffin}
+
+Relation: CoffeeShopOrderCustomerData
+Attributes: {CustomerID, CustomerName}
+Data types: {INT, VARCHAR}
+Primary key: {CustomerID}
+Foreign key: {CustomerID} -> CoffeeShopOrderData{CustomerID}
+Tuple: {1, Alice Brown}
+Tuple: {2, David Miller}
+Tuple: {3, Emily Garcia}

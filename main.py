@@ -145,10 +145,26 @@ def third_nf(
 
 
 def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
-    return relations
+    progress = False
+    for original_relation in relations.copy():
+        current_relation = original_relation
+        for fd in current_relation.functional_dependencies:
+            if not current_relation.is_superkey(fd[0]):
+                decomposed_relation = current_relation.split(
+                    fd[0] + fd[1],
+                    pk=fd[0],
+                    name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
+                )
+                current_relation.remove_attrs(fd[1])
+                progress = True
+    if progress:
+        return bcnf(relations)
+    else:
+        return relations
 
 
 def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    # Complete next
     return relations
 
 
