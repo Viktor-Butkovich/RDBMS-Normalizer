@@ -14,8 +14,8 @@ Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, DrinkIngredient}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkIngredient}
 Tuple: {1001, 1, 0, Espresso}
 Tuple: {1001, 1, 0, Oat Milk}
@@ -36,8 +36,8 @@ Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkAllergen}
 Tuple: {1001, 1, 0, Oat}
 Tuple: {1002, 2, 3, Dairy}
@@ -51,8 +51,8 @@ Attributes: {OrderID, DrinkID, FoodID, FoodIngredient}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, FoodIngredient}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodIngredient}
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1003, 4, 0, NONE}
@@ -70,8 +70,8 @@ Attributes: {OrderID, DrinkID, FoodID, FoodAllergen}
 Data types: {INT, INT, INT, VARCHAR}
 Primary key: {OrderID, DrinkID, FoodID, FoodAllergen}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
 Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodAllergen}
 Tuple: {1001, 1, 0, NONE}
 Tuple: {1003, 4, 0, NONE}
