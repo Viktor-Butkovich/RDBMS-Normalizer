@@ -119,8 +119,29 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
     return relations
 
 
-def third_nf(relations: List[relation.relation]) -> List[relation.relation]:
-    return relations
+def third_nf(
+    relations: List[relation.relation],
+) -> List[
+    relation.relation
+]:  # Note - anomaly in 3NF output due to incorrect FD label in initial input: OrderID -/> PromocodeUsed
+    progress = False
+    for original_relation in relations.copy():
+        current_relation = original_relation
+        for fd in current_relation.functional_dependencies:
+            if not (
+                current_relation.is_superkey(fd[0]) or current_relation.is_prime(fd[1])
+            ):
+                decomposed_relation = current_relation.split(
+                    fd[0] + fd[1],
+                    pk=fd[0],
+                    name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
+                )
+                current_relation.remove_attrs(fd[1])
+                progress = True
+    if progress:
+        return third_nf(relations)
+    else:
+        return relations
 
 
 def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
@@ -196,7 +217,8 @@ def main(args: List[str]):
     else:
         for current_relation in relations:
             print(current_relation)
-            print(current_relation.to_sql())
+            for command in current_relation.to_sql():
+                print(command)
 
 
 if __name__ == "__main__":

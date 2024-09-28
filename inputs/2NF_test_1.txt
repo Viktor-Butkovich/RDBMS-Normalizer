@@ -3,7 +3,6 @@ Attributes: {OrderID, PromocodeUsed}
 Data types: {INT, VARCHAR}
 Primary key: {OrderID, PromocodeUsed}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Functional dependency: {OrderID} -> {PromocodeUsed}
 Tuple: {1001, NONE}
 Tuple: {1002, SUMMERFUN}
 Tuple: {1003, SUMMERFUN}

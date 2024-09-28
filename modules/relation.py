@@ -26,6 +26,22 @@ class relation:
         self.tuples: List[List[str]] = input_dict.get("Tuples", [])
         self.verify_sql()
 
+    def is_superkey(self, attrs: List[str]) -> bool:
+        for key in [self.pk] + self.candidate_keys:
+            if set(key).issubset(set(attrs)):
+                return True
+        return False
+
+    def is_prime(self, attrs: List[str]) -> bool:
+        for key in [self.pk] + self.candidate_keys:
+            if len(attrs) > 0:
+                if set(key).issubset(set(attrs)):
+                    return True
+            else:
+                if attrs[0] in key:
+                    return True
+        return False
+
     def remove_attrs(self, attrs: List[str]) -> None:
         for attr in attrs:
             index = self.attrs.index(attr)
@@ -204,12 +220,17 @@ class relation:
             )
         return description.replace("'", "").replace('"', "") + "\n"
 
-    def split(self, attrs: List[str], name: str = None) -> "relation":
+    def split(
+        self, attrs: List[str], pk: List[str] = None, name: str = None
+    ) -> "relation":
         split_data_types = [self.get_data_type(attr) for attr in attrs]
         split_candidate_keys = [
             key for key in self.candidate_keys if all([attr in attrs for attr in key])
         ]
-        split_pk = [attr for attr in self.pk if attr in attrs]
+        if not pk:
+            split_pk = [attr for attr in self.pk if attr in attrs]
+        else:
+            split_pk = pk
         split_foreign_keys = [
             (key[0].copy(), key[1], key[2].copy())
             for key in self.foreign_keys
@@ -387,7 +408,8 @@ class relation:
             return "TEXT"
         return self.data_types[self.attrs.index(attr)]
 
-    def to_sql(self) -> str:
+    def to_sql(self) -> List[str]:
+        return_list = []
         sql = f"CREATE TABLE {self.name} (\n"
         for attr in self.attrs:
             sql += f"    {attr} {self.get_data_type(attr)},\n"
@@ -396,21 +418,33 @@ class relation:
             sql += f"    FOREIGN KEY ({', '.join(key[0])}) REFERENCES {key[1]}({', '.join(key[2])}),\n"
         sql = sql.removesuffix(",\n")  # Remove trailing comma
         sql += "\n);"
-        return sql
+        return_list.append(sql)
+        for current_tuple in self.tuples:
+            values = []
+            for item in current_tuple:
+                if self.get_data_type(
+                    self.attrs[current_tuple.index(item)]
+                ).lower() in ["text", "varchar"]:
+                    values.append(f"'{item}'")
+                elif item.lower() in ["null", "none"]:
+                    values.append("NULL")
+                else:
+                    values.append(item)
+            return_list.append(f"INSERT INTO {self.name} VALUES({', '.join(values)});")
+        return return_list
 
     def verify_sql(self) -> str:
-        try:
-            conn = sqlite3.connect(
-                ":memory:"
-            )  # Create an in-memory sqlite DB to verify that this relation's to_sql() is valid
-            cursor = conn.cursor()
-            cursor.execute(self.to_sql())
-            conn.commit()
-            cursor.execute(f"PRAGMA table_info({self.name});")
-            result = cursor.fetchall()
-            conn.close()
-            return result
-        except BaseException as e:
-            raise RuntimeError(
-                f"Invalid CREATE TABLE command:\n\n{self.to_sql()}\n\n{e}"
-            )
+        conn = sqlite3.connect(
+            ":memory:"
+        )  # Create an in-memory sqlite DB to verify that this relation's to_sql() is valid
+        cursor = conn.cursor()
+        for sql in self.to_sql():
+            try:
+                cursor.execute(sql)
+            except BaseException as e:
+                raise RuntimeError(f"Invalid SQL command:\n\n{sql}\n\n{e}")
+        conn.commit()
+        cursor.execute(f"PRAGMA table_info({self.name});")
+        result = cursor.fetchall()
+        conn.close()
+        return result

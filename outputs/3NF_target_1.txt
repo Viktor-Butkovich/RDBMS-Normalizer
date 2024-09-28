@@ -3,7 +3,6 @@ Attributes: {OrderID, PromocodeUsed}
 Data types: {INT, VARCHAR}
 Primary key: {OrderID, PromocodeUsed}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Functional dependency: {OrderID} -> {PromocodeUsed}
 Tuple: {1001, NONE}
 Tuple: {1002, SUMMERFUN}
 Tuple: {1003, SUMMERFUN}
@@ -81,13 +80,12 @@ Tuple: {1002, 3, 3, Wheat}
 Tuple: {1002, 3, 3, Egg}
 
 Relation: CoffeeShopOrderData
-Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName}
-Data types: {INT, DATE, FLOAT, FLOAT, FLOAT, INT, VARCHAR}
+Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID}
+Data types: {INT, DATE, FLOAT, FLOAT, FLOAT, INT}
 Primary key: {OrderID}
-Functional dependency: {CustomerID} -> {CustomerName}
-Tuple: {1001, 6/30/2024, 7.25, 7.25, 0.00, 1, Alice Brown}
-Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2, David Miller}
-Tuple: {1003, 6/29/2024, 115.00, 115.00, 0.00, 3, Emily Garcia}
+Tuple: {1001, 6/30/2024, 7.25, 7.25, 0.00, 1}
+Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2}
+Tuple: {1003, 6/29/2024, 115.00, 115.00, 0.00, 3}
 
 Relation: CoffeeShopDrinkData
 Attributes: {OrderID, DrinkID, DrinkSize, DrinkQuantity, Milk}
@@ -125,3 +123,12 @@ Primary key: {FoodID}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Tuple: {0, NULL}
 Tuple: {3, Blueberry Muffin}
+
+Relation: CoffeeShopOrderCustomerData
+Attributes: {CustomerID, CustomerName}
+Data types: {INT, VARCHAR}
+Primary key: {CustomerID}
+Foreign key: {CustomerID} -> CoffeeShopOrderData{CustomerID}
+Tuple: {1, Alice Brown}
+Tuple: {2, David Miller}
+Tuple: {3, Emily Garcia}
