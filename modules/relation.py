@@ -14,7 +14,7 @@ class relation:
             "Foreign keys", []
         )
         foreign_attributes = [attr for fk in self.foreign_keys for attr in fk[0]]
-        self.owned_keys = list(set(self.attrs) - set(foreign_attributes))
+        self.owned_keys = sorted(list(set(self.attrs) - set(foreign_attributes)))
         self.functional_dependencies: List[
             Tuple[List[str], List[str]]
         ] = input_dict.get("Functional dependencies", [])
@@ -164,9 +164,13 @@ class relation:
                                                     ):
 
                                                         mvd = (
-                                                            list(
-                                                                set(self.pk)
-                                                                - set([attr1, attr2])
+                                                            sorted(
+                                                                list(
+                                                                    set(self.pk)
+                                                                    - set(
+                                                                        [attr1, attr2]
+                                                                    )
+                                                                )
                                                             ),
                                                             [attr1, attr2],
                                                         )
@@ -436,6 +440,8 @@ class relation:
                     self.attrs[current_tuple.index(item)]
                 ).lower() in ["text", "varchar"]:
                     values.append(f"'{item}'")
+                elif type(item) != str:
+                    values.append("'" + str(item).replace("'", "") + "'")
                 elif item.lower() in ["null", "none"]:
                     values.append("NULL")
                 else:

@@ -30,7 +30,7 @@ def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
             )
             current_relation, decomposed_relation = current_relation.decompose(
                 [mva],
-                omit=list(set(current_relation.multivalued_attrs) - {mva}),
+                omit=sorted(list(set(current_relation.multivalued_attrs) - {mva})),
                 name=decomposed_name,
             )
             decomposed_relation.split_mva(mva)
@@ -62,7 +62,9 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                     if current_relation.name.endswith("Data")
                     else f"{fd[0][-1].removesuffix('ID')}{current_relation.name}"
                 )
-                remaining_attrs = list(set(current_relation.attrs) - set(pfd[1]))
+                remaining_attrs = sorted(
+                    list(set(current_relation.attrs) - set(pfd[1]))
+                )
                 if any(
                     [
                         relation != current_relation
@@ -72,7 +74,7 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                 ):
                     # If remaining attributes would be redundant, just replace with decomposed relation
                     current_relation.remove_attrs(
-                        list(set(current_relation.attrs) - set(pfd[0] + pfd[1]))
+                        sorted(list(set(current_relation.attrs) - set(pfd[0] + pfd[1])))
                     )
                     removed_original = True
                 else:
@@ -136,6 +138,7 @@ def third_nf(
     if progress:
         return third_nf(relations)
     else:
+        fix_foreign_key_references(relations)
         return relations
 
 
@@ -157,6 +160,7 @@ def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
     if progress:
         return bcnf(relations)
     else:
+        fix_foreign_key_references(relations)
         return relations
 
 
@@ -169,10 +173,15 @@ def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
             current_relation.remove_attrs([mvd[1][0]])
             decomposed_relation.remove_if_redundant()
             current_relation.remove_if_redundant()
+            if decomposed_relation in relations and not current_relation in relations:
+                decomposed_relation.name = (
+                    current_relation.name
+                )  # If original relation removed, let the decomposed relation inherit the name
             progress = True
     if progress:
         return fourth_nf(relations)
     else:
+        fix_foreign_key_references(relations)
         return relations
 
 
@@ -197,15 +206,32 @@ def fix_foreign_key_references(
                         and foreign_key[0] in other_relation.owned_keys
                     ):
                         foreign_key[1] = other_relation.name
+            if (
+                foreign_key[1] not in relation_names
+            ):  # If still not resolved, assume there is no foreign key
+                foreign_key[1] = current_relation.name
         current_relation.foreign_keys = []
         for other_relation in sorted(
             list(set(foreign_key[1] for foreign_key in foreign_key_tuples))
         ):
-            current_relation.foreign_keys.append(([], other_relation, []))
-            for foreign_key_tuple in foreign_key_tuples:
-                if foreign_key_tuple[1] == other_relation:
-                    current_relation.foreign_keys[-1][0].append(foreign_key_tuple[0])
-                    current_relation.foreign_keys[-1][2].append(foreign_key_tuple[2])
+            if other_relation != current_relation.name:
+                current_relation.foreign_keys.append(([], other_relation, []))
+                for foreign_key_tuple in foreign_key_tuples:
+                    if foreign_key_tuple[1] == other_relation:
+                        if (
+                            not foreign_key_tuple[0]
+                            in current_relation.foreign_keys[-1][0]
+                        ):
+                            current_relation.foreign_keys[-1][0].append(
+                                foreign_key_tuple[0]
+                            )
+                        if (
+                            not foreign_key_tuple[2]
+                            in current_relation.foreign_keys[-1][2]
+                        ):
+                            current_relation.foreign_keys[-1][2].append(
+                                foreign_key_tuple[2]
+                            )
 
 
 normal_forms = {

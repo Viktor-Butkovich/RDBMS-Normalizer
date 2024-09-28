@@ -1,0 +1,123 @@
+Relation: CoffeeShopPromocodeUsedData
+Attributes: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1002, 2, 3, SUMMERFUN}
+Tuple: {1002, 3, 3, SUMMERFUN}
+Tuple: {1003, 4, 0, SUMMERFUN}
+Tuple: {1003, 4, 0, JUNEVIP}
+
+Relation: CoffeeShopDrinkAllergenData
+Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 1, 0, Oat}
+Tuple: {1002, 2, 3, Dairy}
+Tuple: {1002, 2, 3, Nuts}
+Tuple: {1002, 3, 3, Nuts}
+Tuple: {1003, 4, 0, Nuts}
+Tuple: {1003, 4, 0, Soy}
+
+Relation: CoffeeShopFoodIngredientData
+Attributes: {OrderID, FoodID, FoodIngredient}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, FoodID, FoodIngredient}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 0, NONE}
+Tuple: {1003, 0, NONE}
+Tuple: {1002, 3, Flour}
+Tuple: {1002, 3, Sugar}
+Tuple: {1002, 3, Blueberries}
+Tuple: {1002, 3, Eggs}
+
+Relation: CoffeeShopFoodAllergenData
+Attributes: {OrderID, FoodID, FoodAllergen}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, FoodID, FoodAllergen}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 0, NONE}
+Tuple: {1003, 0, NONE}
+Tuple: {1002, 3, Wheat}
+Tuple: {1002, 3, Egg}
+
+Relation: CoffeeShopOrderData
+Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID}
+Data types: {INT, DATE, FLOAT, FLOAT, FLOAT, INT}
+Primary key: {OrderID}
+Tuple: {1001, 6/30/2024, 7.25, 7.25, 0.00, 1}
+Tuple: {1002, 6/30/2026, 9.98, 5.99, 3.99, 2}
+Tuple: {1003, 6/29/2024, 115.00, 115.00, 0.00, 3}
+
+Relation: CoffeeShopDrinkData
+Attributes: {OrderID, DrinkID, DrinkSize, DrinkQuantity, Milk}
+Data types: {INT, INT, VARCHAR, INT, VARCHAR}
+Primary key: {OrderID, DrinkID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 1, Grande, 1, ND}
+Tuple: {1002, 2, Tall, 2, ND}
+Tuple: {1002, 3, Grande, 1, ND}
+Tuple: {1003, 4, Venti, 8, ND}
+
+Relation: CoffeeShopFoodData
+Attributes: {OrderID, FoodID, FoodQuantity}
+Data types: {INT, INT, INT}
+Primary key: {OrderID, FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {1001, 0, 0}
+Tuple: {1002, 3, 1}
+Tuple: {1003, 0, 0}
+
+Relation: CoffeeShopOrderCustomerData
+Attributes: {CustomerID, CustomerName}
+Data types: {INT, VARCHAR}
+Primary key: {CustomerID}
+Foreign key: {CustomerID} -> CoffeeShopOrderData{CustomerID}
+Tuple: {1, Alice Brown}
+Tuple: {2, David Miller}
+Tuple: {3, Emily Garcia}
+
+Relation: CoffeeShopDrinkDrinkData
+Attributes: {DrinkID, DrinkName}
+Data types: {INT, VARCHAR}
+Primary key: {DrinkID}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Tuple: {1, Caffe Latte}
+Tuple: {2, Iced Caramel Macchiato}
+Tuple: {3, Iced Matcha Latte}
+Tuple: {4, Vanilla Bean Frappuccino}
+
+Relation: CoffeeShopFoodFoodData
+Attributes: {FoodID, FoodName}
+Data types: {INT, VARCHAR}
+Primary key: {FoodID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Tuple: {0, NULL}
+Tuple: {3, Blueberry Muffin}
+
+Relation: CoffeeShopDrinkIngredientData
+Attributes: {FoodID, OrderID, DrinkIngredient}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, FoodID, DrinkIngredient}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
+Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
+Tuple: {0, 1001, Espresso}
+Tuple: {0, 1001, Oat Milk}
+Tuple: {3, 1002, Espresso}
+Tuple: {3, 1002, Vanilla Syrup}
+Tuple: {3, 1002, Milk}
+Tuple: {3, 1002, Ice}
+Tuple: {3, 1002, Matcha}
+Tuple: {3, 1002, Coconut Milk}
+Tuple: {0, 1003, Coffee}
+Tuple: {0, 1003, Ice}
+Tuple: {0, 1003, Vanilla Syrup}
+Tuple: {0, 1003, Soy Milk}
