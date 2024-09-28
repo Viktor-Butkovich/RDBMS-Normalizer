@@ -26,6 +26,16 @@ class relation:
         self.tuples: List[List[str]] = input_dict.get("Tuples", [])
         self.verify_sql()
 
+    def remove_if_redundant(self) -> None:
+        all_attrs = []
+        for relation in self.relations_list:
+            if relation != self:
+                all_attrs += relation.attrs
+        if set(self.attrs).issubset(
+            set(all_attrs)
+        ):  # If no unique attributes, remove original
+            self.relations_list.remove(self)
+
     def is_superkey(self, attrs: List[str]) -> bool:
         for key in [self.pk] + self.candidate_keys:
             if set(key).issubset(set(attrs)):
@@ -78,12 +88,10 @@ class relation:
                 for fd in self.functional_dependencies
                 if fd[0] and fd[1]
             ]
-            for mvd in self.multivalued_dependencies:
-                if attr in mvd[0]:
-                    mvd[1].pop(mvd[0].index(attr))
-                    mvd[0].remove(attr)
             self.multivalued_dependencies = [
-                mvd.copy() for mvd in self.multivalued_dependencies if mvd[0] and mvd[1]
+                mvd
+                for mvd in self.multivalued_dependencies
+                if not attr in mvd[0] + mvd[1]
             ]
             self.multivalued_attrs = [
                 attr for attr in self.multivalued_attrs if attr != attr
@@ -223,6 +231,8 @@ class relation:
     def split(
         self, attrs: List[str], pk: List[str] = None, name: str = None
     ) -> "relation":
+        if not name:
+            name = f"{self.name}_decomposed"
         split_data_types = [self.get_data_type(attr) for attr in attrs]
         split_candidate_keys = [
             key for key in self.candidate_keys if all([attr in attrs for attr in key])

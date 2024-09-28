@@ -9,75 +9,61 @@ Tuple: {1003, SUMMERFUN}
 Tuple: {1003, JUNEVIP}
 
 Relation: CoffeeShopDrinkIngredientData
-Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
-Data types: {INT, INT, INT, VARCHAR}
-Primary key: {OrderID, DrinkID, FoodID, DrinkIngredient}
+Attributes: {OrderID, DrinkID, DrinkIngredient}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, DrinkIngredient}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkIngredient}
-Tuple: {1001, 1, 0, Espresso}
-Tuple: {1001, 1, 0, Oat Milk}
-Tuple: {1002, 2, 3, Espresso}
-Tuple: {1002, 2, 3, Vanilla Syrup}
-Tuple: {1002, 2, 3, Milk}
-Tuple: {1002, 2, 3, Ice}
-Tuple: {1002, 3, 3, Matcha}
-Tuple: {1002, 3, 3, Coconut Milk}
-Tuple: {1002, 3, 3, Ice}
-Tuple: {1003, 4, 0, Coffee}
-Tuple: {1003, 4, 0, Ice}
-Tuple: {1003, 4, 0, Vanilla Syrup}
-Tuple: {1003, 4, 0, Soy Milk}
+Tuple: {1001, 1, Espresso}
+Tuple: {1001, 1, Oat Milk}
+Tuple: {1002, 2, Espresso}
+Tuple: {1002, 2, Vanilla Syrup}
+Tuple: {1002, 2, Milk}
+Tuple: {1002, 2, Ice}
+Tuple: {1002, 3, Matcha}
+Tuple: {1002, 3, Coconut Milk}
+Tuple: {1002, 3, Ice}
+Tuple: {1003, 4, Coffee}
+Tuple: {1003, 4, Ice}
+Tuple: {1003, 4, Vanilla Syrup}
+Tuple: {1003, 4, Soy Milk}
 
 Relation: CoffeeShopDrinkAllergenData
-Attributes: {OrderID, DrinkID, FoodID, DrinkAllergen}
-Data types: {INT, INT, INT, VARCHAR}
-Primary key: {OrderID, DrinkID, FoodID, DrinkAllergen}
+Attributes: {OrderID, DrinkID, DrinkAllergen}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, DrinkAllergen}
 Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
-Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Multivalued dependency: {OrderID, DrinkID} -->> {FoodID, DrinkAllergen}
-Tuple: {1001, 1, 0, Oat}
-Tuple: {1002, 2, 3, Dairy}
-Tuple: {1002, 2, 3, Nuts}
-Tuple: {1002, 3, 3, Nuts}
-Tuple: {1003, 4, 0, Nuts}
-Tuple: {1003, 4, 0, Soy}
+Tuple: {1001, 1, Oat}
+Tuple: {1002, 2, Dairy}
+Tuple: {1002, 2, Nuts}
+Tuple: {1002, 3, Nuts}
+Tuple: {1003, 4, Nuts}
+Tuple: {1003, 4, Soy}
 
 Relation: CoffeeShopFoodIngredientData
-Attributes: {OrderID, DrinkID, FoodID, FoodIngredient}
-Data types: {INT, INT, INT, VARCHAR}
-Primary key: {OrderID, DrinkID, FoodID, FoodIngredient}
-Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Attributes: {OrderID, FoodID, FoodIngredient}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, FoodID, FoodIngredient}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodIngredient}
-Tuple: {1001, 1, 0, NONE}
-Tuple: {1003, 4, 0, NONE}
-Tuple: {1002, 2, 3, Flour}
-Tuple: {1002, 2, 3, Sugar}
-Tuple: {1002, 2, 3, Blueberries}
-Tuple: {1002, 2, 3, Eggs}
-Tuple: {1002, 3, 3, Flour}
-Tuple: {1002, 3, 3, Sugar}
-Tuple: {1002, 3, 3, Blueberries}
-Tuple: {1002, 3, 3, Eggs}
+Tuple: {1001, 0, NONE}
+Tuple: {1003, 0, NONE}
+Tuple: {1002, 3, Flour}
+Tuple: {1002, 3, Sugar}
+Tuple: {1002, 3, Blueberries}
+Tuple: {1002, 3, Eggs}
 
 Relation: CoffeeShopFoodAllergenData
-Attributes: {OrderID, DrinkID, FoodID, FoodAllergen}
-Data types: {INT, INT, INT, VARCHAR}
-Primary key: {OrderID, DrinkID, FoodID, FoodAllergen}
-Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Attributes: {OrderID, FoodID, FoodAllergen}
+Data types: {INT, INT, VARCHAR}
+Primary key: {OrderID, FoodID, FoodAllergen}
 Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Multivalued dependency: {OrderID, FoodID} -->> {DrinkID, FoodAllergen}
-Tuple: {1001, 1, 0, NONE}
-Tuple: {1003, 4, 0, NONE}
-Tuple: {1002, 2, 3, Wheat}
-Tuple: {1002, 2, 3, Egg}
-Tuple: {1002, 3, 3, Wheat}
-Tuple: {1002, 3, 3, Egg}
+Tuple: {1001, 0, NONE}
+Tuple: {1003, 0, NONE}
+Tuple: {1002, 3, Wheat}
+Tuple: {1002, 3, Egg}
 
 Relation: CoffeeShopOrderData
 Attributes: {OrderID, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID}

@@ -81,14 +81,7 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                     )
                     current_relation.remove_attrs(pfd[1])
         if normalized and (not removed_original):
-            all_attrs = []
-            for relation in relations:
-                if relation != original_relation:
-                    all_attrs += relation.attrs
-            if set(current_relation.attrs).issubset(
-                all_attrs
-            ):  # If no unique attributes, remove original
-                relations.remove(original_relation)
+            original_relation.remove_if_redundant()
 
         inherited_keys = []
         if (
@@ -137,6 +130,8 @@ def third_nf(
                     name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
                 )
                 current_relation.remove_attrs(fd[1])
+                decomposed_relation.remove_if_redundant()
+                current_relation.remove_if_redundant()
                 progress = True
     if progress:
         return third_nf(relations)
@@ -156,6 +151,8 @@ def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
                     name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
                 )
                 current_relation.remove_attrs(fd[1])
+                decomposed_relation.remove_if_redundant()
+                current_relation.remove_if_redundant()
                 progress = True
     if progress:
         return bcnf(relations)
@@ -164,8 +161,19 @@ def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
-    # Complete next
-    return relations
+    progress = False
+    for original_relation in relations.copy():
+        current_relation = original_relation
+        for mvd in current_relation.multivalued_dependencies:
+            decomposed_relation = current_relation.split(mvd[0] + [mvd[1][0]])
+            current_relation.remove_attrs([mvd[1][0]])
+            decomposed_relation.remove_if_redundant()
+            current_relation.remove_if_redundant()
+            progress = True
+    if progress:
+        return fourth_nf(relations)
+    else:
+        return relations
 
 
 def fifth_nf(relations: List[relation.relation]) -> List[relation.relation]:
