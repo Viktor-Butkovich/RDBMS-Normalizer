@@ -89,18 +89,24 @@ class relation:
                                                         and t2[attr2_index]
                                                         == t3[attr2_index]
                                                     ):
-                                                        self.multivalued_dependencies.append(
-                                                            (
-                                                                list(
-                                                                    set(self.pk)
-                                                                    - set(
-                                                                        [attr1, attr2]
-                                                                    )
-                                                                ),
-                                                                [attr1, attr2],
-                                                            )
+
+                                                        mvd = (
+                                                            list(
+                                                                set(self.pk)
+                                                                - set([attr1, attr2])
+                                                            ),
+                                                            [attr1, attr2],
                                                         )
-                                                        return
+                                                        if not any(
+                                                            set(mvd[0])
+                                                            == set(existing_mvd[0])
+                                                            and set(mvd[1])
+                                                            == set(existing_mvd[1])
+                                                            for existing_mvd in self.multivalued_dependencies
+                                                        ):
+                                                            self.multivalued_dependencies.append(
+                                                                mvd
+                                                            )
 
     def split_mva(self, mva: str) -> None:
         index = self.attrs.index(mva)
