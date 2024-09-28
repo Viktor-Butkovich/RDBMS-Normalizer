@@ -25,7 +25,82 @@ class relation:
         self.verify_sql()
 
     def detect_mvd(self) -> None:
-        return
+        """
+        Detect if the primary key values of any group of 4 tuples in the relation follows this pattern:
+            [other PK values match], a, b
+            [other PK values match], c, d
+            [other PK values match], a, d
+            [other PK values match], c, b
+        If so, the relation has a multivalued dependency {other PK attributes} -->> attribute 3 | attribute 4
+        Some MVDs may be missed if the relation does not have enough tuples to reveal them
+        """
+        for attr1 in self.pk:
+            attr1_index = self.attrs.index(attr1)
+            for attr2 in self.pk:
+                attr2_index = self.attrs.index(attr2)
+                if (
+                    attr1 != attr2
+                ):  # For each pair of attributes in PK, check if they are the RHS of an MVD
+                    for t1 in self.tuples:
+                        for t2 in self.tuples:
+                            if t1 != t2 and all(
+                                [
+                                    pk_attr in [attr1, attr2]
+                                    or t1[self.attrs.index(pk_attr)]
+                                    == t2[self.attrs.index(pk_attr)]
+                                    for pk_attr in self.pk
+                                ]
+                            ):
+                                for t3 in self.tuples:
+                                    if (
+                                        t1 != t3
+                                        and t2 != t3
+                                        and all(
+                                            [
+                                                pk_attr in [attr1, attr2]
+                                                or t1[self.attrs.index(pk_attr)]
+                                                == t3[self.attrs.index(pk_attr)]
+                                                for pk_attr in self.pk
+                                            ]
+                                        )
+                                    ):
+                                        for t4 in self.tuples:
+                                            if (
+                                                t1 != t4
+                                                and t2 != t4
+                                                and t3 != 4
+                                                and all(
+                                                    [
+                                                        pk_attr in [attr1, attr2]
+                                                        or t1[self.attrs.index(pk_attr)]
+                                                        == t4[self.attrs.index(pk_attr)]
+                                                        for pk_attr in self.pk
+                                                    ]
+                                                )
+                                            ):
+                                                if (
+                                                    t1[attr1_index] == t3[attr1_index]
+                                                    and t2[attr1_index]
+                                                    == t2[attr1_index]
+                                                ):
+                                                    if (
+                                                        t1[attr2_index]
+                                                        == t4[attr2_index]
+                                                        and t2[attr2_index]
+                                                        == t3[attr2_index]
+                                                    ):
+                                                        self.multivalued_dependencies.append(
+                                                            (
+                                                                list(
+                                                                    set(self.pk)
+                                                                    - set(
+                                                                        [attr1, attr2]
+                                                                    )
+                                                                ),
+                                                                [attr1, attr2],
+                                                            )
+                                                        )
+                                                        return
 
     def split_mva(self, mva: str) -> None:
         index = self.attrs.index(mva)
