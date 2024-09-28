@@ -39,6 +39,73 @@ def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    for original_relation in relations.copy():
+        current_relation = original_relation
+        normalized = False
+        removed_original = False
+        pfds = []
+        for fd in current_relation.functional_dependencies:
+            if (
+                any([attr in original_relation.pk for attr in fd[0]])
+                and set(fd[0]) != original_relation.pk
+            ):  # PFD if any attributes of LHS are in PK but equal to the full PK
+                normalized = True
+                pfds.append(fd)
+        inherited_keys = []
+        original_foreign_keys = [
+            attr for fk in current_relation.foreign_keys for attr in fk[0]
+        ]
+
+        for pfd in pfds:
+            if pfd in current_relation.functional_dependencies:
+                decomposed_name = (
+                    f"{current_relation.name.removesuffix('Data')}{pfd[0][-1].removesuffix('ID')}Data"
+                    if current_relation.name.endswith("Data")
+                    else f"{fd[0][-1].removesuffix('ID')}{current_relation.name}"
+                )
+                remaining_attrs = list(set(current_relation.attrs) - set(pfd[1]))
+                if any(
+                    [
+                        relation != current_relation
+                        and set(remaining_attrs).issubset(relation.attrs)
+                        for relation in relations
+                    ]
+                ):
+                    # If remaining attributes would be redundant, just replace with decomposed relation
+                    current_relation.remove_attrs(
+                        list(set(current_relation.attrs) - set(pfd[0] + pfd[1]))
+                    )
+                    removed_original = True
+                else:
+                    split_relation = current_relation.split(
+                        pfd[0] + pfd[1], name=decomposed_name
+                    )
+                    for attr in split_relation.pk:
+                        if (
+                            not attr in inherited_keys + original_foreign_keys
+                        ):  # If this PFD should inherit the attribute
+                            split_relation.owned_keys.append(attr)
+                            for foreign_key in split_relation.foreign_keys:
+                                if attr in foreign_key[0]:
+                                    foreign_key[2].pop(foreign_key[0].index(attr))
+                                    foreign_key[0].remove(attr)
+                            split_relation.foreign_keys = [
+                                fk
+                                for fk in split_relation.foreign_keys
+                                if fk[0] and fk[1]
+                            ]
+                            inherited_keys.append(attr)
+                        elif attr in inherited_keys:
+                            if not any(
+                                [attr in fk[0] for fk in split_relation.foreign_keys]
+                            ):
+                                split_relation.foreign_keys.append(
+                                    ([attr], current_relation.name, [attr])
+                                )
+                    current_relation.remove_attrs(pfd[1])
+        if normalized and not removed_original:
+            relations.remove(original_relation)
+    fix_foreign_key_references(relations)
     return relations
 
 
@@ -56,6 +123,34 @@ def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 def fifth_nf(relations: List[relation.relation]) -> List[relation.relation]:
     return relations
+
+
+def fix_foreign_key_references(
+    relations: List[relation.relation],
+) -> List[relation.relation]:
+    relation_names = [relation.name for relation in relations]
+    for current_relation in relations:
+        foreign_key_tuples = []
+        for fk in current_relation.foreign_keys:
+            for i in range(len(fk[0])):
+                foreign_key_tuples.append([fk[0][i], fk[1], fk[2][i]])
+        for foreign_key in foreign_key_tuples:
+            if foreign_key[1] not in relation_names:
+                for other_relation in relations:
+                    if (
+                        current_relation != other_relation
+                        and foreign_key[0] in other_relation.owned_keys
+                    ):
+                        foreign_key[1] = other_relation.name
+        current_relation.foreign_keys = []
+        for other_relation in list(
+            set(foreign_key[1] for foreign_key in foreign_key_tuples)
+        ):
+            current_relation.foreign_keys.append(([], other_relation, []))
+            for foreign_key_tuple in foreign_key_tuples:
+                if foreign_key_tuple[1] == other_relation:
+                    current_relation.foreign_keys[-1][0].append(foreign_key_tuple[0])
+                    current_relation.foreign_keys[-1][2].append(foreign_key_tuple[2])
 
 
 normal_forms = {

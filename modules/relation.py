@@ -13,6 +13,8 @@ class relation:
         self.foreign_keys: List[Tuple[List[str], str, List[str]]] = input_dict.get(
             "Foreign keys", []
         )
+        foreign_attributes = [attr for fk in self.foreign_keys for attr in fk[0]]
+        self.owned_keys = list(set(self.attrs) - set(foreign_attributes))
         self.functional_dependencies: List[
             Tuple[List[str], List[str]]
         ] = input_dict.get("Functional dependencies", [])
@@ -23,6 +25,53 @@ class relation:
         self.data_types: List[str] = input_dict.get("Data types", [])
         self.tuples: List[List[str]] = input_dict.get("Tuples", [])
         self.verify_sql()
+
+    def remove_attrs(self, attrs: List[str]) -> None:
+        for attr in attrs:
+            index = self.attrs.index(attr)
+            self.attrs.remove(attr)
+            self.data_types.pop(index)
+            new_tuples = []
+            for current_tuple in self.tuples:
+                current_tuple.pop(index)
+                if not current_tuple in new_tuples:
+                    new_tuples.append(current_tuple)
+            self.tuples = new_tuples
+            self.pk = [pk_attr for pk_attr in self.pk if pk_attr != attr]
+            self.candidate_keys = [
+                key.copy()
+                for key in self.candidate_keys
+                if not any([attr in key for attr in attrs])
+            ]
+            for key in self.foreign_keys:
+                if attr in key[0]:
+                    key[2].pop(key[0].index(attr))
+                    key[0].remove(attr)
+            self.foreign_keys = [
+                (key[0].copy(), key[1], key[2].copy())
+                for key in self.foreign_keys
+                if key[0] and key[2]
+            ]
+            for fd in self.functional_dependencies:
+                if attr in fd[0]:
+                    fd[0].remove(attr)
+                if attr in fd[1]:
+                    fd[1].remove(attr)
+            self.functional_dependencies = [
+                (fd[0].copy(), fd[1].copy())
+                for fd in self.functional_dependencies
+                if fd[0] and fd[1]
+            ]
+            for mvd in self.multivalued_dependencies:
+                if attr in mvd[0]:
+                    mvd[1].pop(mvd[0].index(attr))
+                    mvd[0].remove(attr)
+            self.multivalued_dependencies = [
+                mvd.copy() for mvd in self.multivalued_dependencies if mvd[0] and mvd[1]
+            ]
+            self.multivalued_attrs = [
+                attr for attr in self.multivalued_attrs if attr != attr
+            ]
 
     def detect_mvd(self) -> None:
         """
@@ -155,8 +204,58 @@ class relation:
             )
         return description.replace("'", "").replace('"', "") + "\n"
 
+    def split(self, attrs: List[str], name: str = None) -> "relation":
+        split_data_types = [self.get_data_type(attr) for attr in attrs]
+        split_candidate_keys = [
+            key for key in self.candidate_keys if all([attr in attrs for attr in key])
+        ]
+        split_pk = [attr for attr in self.pk if attr in attrs]
+        split_foreign_keys = [
+            (key[0].copy(), key[1], key[2].copy())
+            for key in self.foreign_keys
+            if all([attr in attrs for attr in key[0]])
+        ]
+        split_foreign_keys.append((split_pk.copy(), self.name, split_pk.copy()))
+        split_functional_dependencies = [
+            (fd[0].copy(), fd[1].copy())
+            for fd in self.functional_dependencies
+            if all([attr in attrs for attr in fd[0] + fd[1]])
+        ]
+        split_functional_dependencies = [
+            fd for fd in split_functional_dependencies if set(fd[0]) != set(split_pk)
+        ]
+        split_multivalued_dependencies = [
+            (mvd[0].copy(), mvd[1].copy())
+            for mvd in self.multivalued_dependencies
+            if all([attr in attrs for attr in mvd[0] + mvd[1]])
+        ]
+        split_tuples = []
+        for current_tuple in self.tuples:
+            new_tuple = [current_tuple[self.attrs.index(attr)] for attr in attrs]
+            if new_tuple not in split_tuples:
+                split_tuples.append(new_tuple)
+
+        return relation(
+            {
+                "Name": name,
+                "Attributes": attrs,
+                "Primary key": split_pk,
+                "Candidate keys": split_candidate_keys,
+                "Multivalued attributes": [],
+                "Data types": split_data_types,
+                "Tuples": split_tuples,
+                "Foreign keys": split_foreign_keys,
+                "Functional dependencies": split_functional_dependencies,
+                "Multivalued dependencies": split_multivalued_dependencies,
+            },
+            self.relations_list,
+        )
+
     def decompose(
-        self, attrs: List[str], omit: List[str], name: str = None
+        self,
+        attrs: List[str],
+        omit: List[str],
+        name: str = None,
     ) -> Tuple["relation", "relation"]:
         seen = set()
         decomposed_attrs = [
