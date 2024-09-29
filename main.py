@@ -11,7 +11,8 @@ Test scripts:
 
 import argparse
 from modules import preprocess, relation
-from typing import List
+from typing import List, Tuple
+from itertools import combinations
 
 
 def zero_nf(relations: List[relation.relation]) -> List[relation.relation]:
@@ -186,7 +187,76 @@ def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def fifth_nf(relations: List[relation.relation]) -> List[relation.relation]:
-    return relations
+    progress = False
+    for original_relation in relations.copy():
+        lhs, rhs = find_join_dependency(original_relation)
+        if lhs and rhs:
+            progress = True
+            lhs = original_relation.split(
+                lhs, pk=lhs, name=f"{original_relation.name}Decomposed1"
+            )
+            rhs = original_relation.split(
+                rhs, pk=rhs, name=f"{original_relation.name}Decomposed2"
+            )
+            original_relation.remove_if_redundant()
+    if progress:
+        return fifth_nf(relations)
+    else:
+        return relations
+
+
+def find_join_dependency(
+    current_relation: relation.relation,
+) -> Tuple[List[str], List[str]]:
+    num_attrs = len(current_relation.attrs)
+    if (
+        num_attrs < 4 or not current_relation.tuples
+    ):  # Join dependency requires at least 4 attributes and at least 1 tuple
+        return None, None
+    optimal_lhs, optimal_rhs = None, None
+    optimal_lhs_size, optimal_rhs_size = num_attrs * len(
+        current_relation.tuples
+    ), num_attrs * len(current_relation.tuples)
+    for join_on in current_relation.attrs:
+        other_attrs = [attr for attr in current_relation.attrs if attr != join_on]
+        for length in range(1, num_attrs - 1):
+            for lhs in combinations(other_attrs, length):
+                rhs = list(set(current_relation.attrs) - set(lhs))
+                lhs = list(lhs) + [join_on]
+                lhs_indices = [current_relation.attrs.index(attr) for attr in lhs]
+                rhs_indices = [current_relation.attrs.index(attr) for attr in rhs]
+                lhs_tuples = []
+                rhs_tuples = []
+                for row in current_relation.tuples:
+                    lhs_tuple = [row[lhs_index] for lhs_index in lhs_indices]
+                    if not lhs_tuple in lhs_tuples:
+                        lhs_tuples.append(lhs_tuple)
+                    rhs_tuple = [row[rhs_index] for rhs_index in rhs_indices]
+                    if not rhs_tuple in rhs_tuples:
+                        rhs_tuples.append(rhs_tuple)
+                reconstructed_tuples = []
+                for lhs_tuple in lhs_tuples:
+                    for rhs_tuple in rhs_tuples:
+                        if (
+                            lhs_tuple[lhs.index(join_on)]
+                            == rhs_tuple[rhs.index(join_on)]
+                        ):  # If the join attribute matches
+                            reconstructed_tuple = [None] * num_attrs
+                            for value, index in zip(lhs_tuple, lhs_indices):
+                                reconstructed_tuple[index] = value
+                            for value, index in zip(rhs_tuple, rhs_indices):
+                                reconstructed_tuple[index] = value
+                            if not reconstructed_tuple in reconstructed_tuples:
+                                reconstructed_tuples.append(reconstructed_tuple)
+                if len(reconstructed_tuples) == len(current_relation.tuples):
+                    if (len(lhs) * len(lhs_tuples)) + (
+                        len(rhs) * len(rhs_tuples)
+                    ) < optimal_lhs_size + optimal_rhs_size:
+                        optimal_lhs = lhs
+                        optimal_lhs_size = len(lhs) * len(lhs_tuples)
+                        optimal_rhs = rhs
+                        optimal_rhs_size = len(rhs) * len(rhs_tuples)
+    return optimal_lhs, optimal_rhs
 
 
 def fix_foreign_key_references(

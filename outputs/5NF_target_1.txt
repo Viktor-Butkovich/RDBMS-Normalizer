@@ -1,0 +1,20 @@
+Relation: CoffeeShopDrinksOrderDataDecomposed1
+Attributes: {CustomerID, OrderID}
+Data types: {INT, INT}
+Primary key: {CustomerID, OrderID}
+Foreign key: {CustomerID, OrderID} -> CoffeeShopDrinksOrderData{CustomerID, OrderID}
+Tuple: {1, 1001}
+Tuple: {1, 1002}
+Tuple: {2, 1003}
+
+Relation: CoffeeShopDrinksOrderDataDecomposed2
+Attributes: {OrderID, DrinkID, Milk}
+Data types: {INT, INT, varchar}
+Primary key: {OrderID, DrinkID, Milk}
+Foreign key: {OrderID, DrinkID, Milk} -> CoffeeShopDrinksOrderData{OrderID, DrinkID, Milk}
+Tuple: {1001, 1, ND}
+Tuple: {1001, 1, D}
+Tuple: {1002, 2, D}
+Tuple: {1003, 3, ND}
+Tuple: {1003, 3, D}
+Tuple: {1003, 4, ND}

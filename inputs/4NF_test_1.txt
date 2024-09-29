@@ -1,0 +1,10 @@
+Relation: CoffeeShopDrinksOrderData
+Attributes: {OrderID, CustomerID, DrinkID, Milk}
+Data types: {INT, INT, INT, varchar}
+Primary key: {OrderID, CustomerID, DrinkID, Milk}
+Tuple: {1001, 1, 1, ND}
+Tuple: {1001, 1, 1, D}
+Tuple: {1002, 1, 2, D}
+Tuple: {1003, 2, 3, ND}
+Tuple: {1003, 2, 3, D}
+Tuple: {1003, 2, 4, ND}
