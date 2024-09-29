@@ -1,4 +1,3 @@
-:: Takes an optional input file argument, defaulting to 1NF_test_1.txt
 @echo off
 set input_file=%1
 if "%input_file%"=="" set input_file=inputs/1NF_test_1.txt
