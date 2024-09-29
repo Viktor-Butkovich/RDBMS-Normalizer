@@ -1,13 +1,15 @@
 Relation: CoffeeShopPromocodeUsedData
-Attributes: {OrderID, PromocodeUsed}
-Data types: {INT, VARCHAR}
-Primary key: {OrderID, PromocodeUsed}
+Attributes: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Data types: {INT, INT, INT, VARCHAR}
+Primary key: {OrderID, DrinkID, FoodID, PromocodeUsed}
+Foreign key: {DrinkID} -> CoffeeShopDrinkData{DrinkID}
+Foreign key: {FoodID} -> CoffeeShopFoodData{FoodID}
 Foreign key: {OrderID} -> CoffeeShopOrderData{OrderID}
-Functional dependency: {OrderID} -> {PromocodeUsed}
-Tuple: {1001, NONE}
-Tuple: {1002, SUMMERFUN}
-Tuple: {1003, SUMMERFUN}
-Tuple: {1003, JUNEVIP}
+Tuple: {1001, 1, 0, NONE}
+Tuple: {1002, 2, 3, SUMMERFUN}
+Tuple: {1002, 3, 3, SUMMERFUN}
+Tuple: {1003, 4, 0, SUMMERFUN}
+Tuple: {1003, 4, 0, JUNEVIP}
 
 Relation: CoffeeShopDrinkIngredientData
 Attributes: {OrderID, DrinkID, FoodID, DrinkIngredient}
