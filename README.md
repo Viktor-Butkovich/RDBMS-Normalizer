@@ -28,7 +28,7 @@ Notes:
 
 
 
-Samples files:
+Sample files:
 
 ```inputs/0NF_test_1.txt``` -> ```0NF_target_1.txt```: Initial schema converted to itself
 
