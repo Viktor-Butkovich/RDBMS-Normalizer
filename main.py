@@ -1,6 +1,6 @@
 """
 Run with:
-./scripts/main.bat inputs/input_file.txt outputs/output_file.txt 1NF
+./scripts/convert_schema.bat inputs/input_file.txt outputs/output_file.txt 1NF
 or
 python3 main.py --input_file=inputs/input.txt --output_file=outputs/output.txt --normal_form=0NF --output=SQL
 Test scripts:
@@ -85,3 +85,5 @@ if __name__ == "__main__":
         required=False,
     )
     main(parser.parse_args())
+# Add comments, code description report, and summary of challenges in implementation
+# Also include validation tests performed

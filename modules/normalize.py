@@ -9,31 +9,33 @@ def zero_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
     for original_relation in relations.copy():
-        current_relation = original_relation
-        while current_relation.multivalued_attrs:
-            mva = current_relation.multivalued_attrs[0]
+        while original_relation.multivalued_attrs:
+            mva = original_relation.multivalued_attrs[0]
             decomposed_name = (
-                f"{current_relation.name.removesuffix('Data')}{mva}Data"
-                if current_relation.name.endswith("Data")
-                else f"{mva}{current_relation.name}"
+                f"{original_relation.name.removesuffix('Data')}{mva}Data"
+                if original_relation.name.endswith("Data")
+                else f"{mva}{original_relation.name}"
             )
-            current_relation, decomposed_relation = current_relation.decompose(
-                [mva],
-                omit=sorted(list(set(current_relation.multivalued_attrs) - {mva})),
+            decomposed_relation = original_relation.split(
+                original_relation.pk + [mva],
+                pk=original_relation.pk + [mva],
                 name=decomposed_name,
             )
+            decomposed_relation.multivalued_attrs = [mva]
+            original_relation.remove_attrs([mva])
             decomposed_relation.split_mva(mva)
             decomposed_relation.detect_mvd()
+            decomposed_relation.owned_keys.append(mva)
+    fix_foreign_key_references(relations)
     return relations
 
 
 def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
     for original_relation in relations.copy():
-        current_relation = original_relation
         normalized = False
         removed_original = False
         pfds = []
-        for fd in current_relation.functional_dependencies:
+        for fd in original_relation.functional_dependencies:
             if (
                 any([attr in original_relation.pk for attr in fd[0]])
                 and set(fd[0]) != original_relation.pk
@@ -41,36 +43,38 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                 normalized = True
                 pfds.append(fd)
         original_foreign_keys = [
-            attr for fk in current_relation.foreign_keys for attr in fk[0]
+            attr for fk in original_relation.foreign_keys for attr in fk[0]
         ]
         split_relations = []
         for pfd in pfds:
-            if pfd in current_relation.functional_dependencies:
+            if pfd in original_relation.functional_dependencies:
                 decomposed_name = (
-                    f"{current_relation.name.removesuffix('Data')}{pfd[0][-1].removesuffix('ID')}Data"
-                    if current_relation.name.endswith("Data")
-                    else f"{fd[0][-1].removesuffix('ID')}{current_relation.name}"
+                    f"{original_relation.name.removesuffix('Data')}{pfd[0][-1].removesuffix('ID')}Data"
+                    if original_relation.name.endswith("Data")
+                    else f"{fd[0][-1].removesuffix('ID')}{original_relation.name}"
                 )
                 remaining_attrs = sorted(
-                    list(set(current_relation.attrs) - set(pfd[1]))
+                    list(set(original_relation.attrs) - set(pfd[1]))
                 )
                 if any(
                     [
-                        relation != current_relation
+                        relation != original_relation
                         and set(remaining_attrs).issubset(relation.attrs)
                         for relation in relations
                     ]
                 ):
                     # If remaining attributes would be redundant, just replace with decomposed relation
-                    current_relation.remove_attrs(
-                        sorted(list(set(current_relation.attrs) - set(pfd[0] + pfd[1])))
+                    original_relation.remove_attrs(
+                        sorted(
+                            list(set(original_relation.attrs) - set(pfd[0] + pfd[1]))
+                        )
                     )
                     removed_original = True
                 else:
                     split_relations.append(
-                        current_relation.split(pfd[0] + pfd[1], name=decomposed_name)
+                        original_relation.split(pfd[0] + pfd[1], name=decomposed_name)
                     )
-                    current_relation.remove_attrs(pfd[1])
+                    original_relation.remove_attrs(pfd[1])
         if normalized and (not removed_original):
             original_relation.remove_if_redundant()
 
@@ -97,7 +101,7 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                             [attr in fk[0] for fk in split_relation.foreign_keys]
                         ):
                             split_relation.foreign_keys.append(
-                                ([attr], current_relation.name, [attr])
+                                ([attr], original_relation.name, [attr])
                             )
     fix_foreign_key_references(relations)
     return relations
@@ -110,19 +114,19 @@ def third_nf(
 ]:  # Note - anomaly in 3NF output due to incorrect FD label in initial input: OrderID -/> PromocodeUsed
     progress = False
     for original_relation in relations.copy():
-        current_relation = original_relation
-        for fd in current_relation.functional_dependencies:
+        for fd in original_relation.functional_dependencies:
             if not (
-                current_relation.is_superkey(fd[0]) or current_relation.is_prime(fd[1])
+                original_relation.is_superkey(fd[0])
+                or original_relation.is_prime(fd[1])
             ):
-                decomposed_relation = current_relation.split(
+                decomposed_relation = original_relation.split(
                     fd[0] + fd[1],
                     pk=fd[0],
-                    name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
+                    name=f"{original_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
                 )
-                current_relation.remove_attrs(fd[1])
+                original_relation.remove_attrs(fd[1])
                 decomposed_relation.remove_if_redundant()
-                current_relation.remove_if_redundant()
+                original_relation.remove_if_redundant()
                 progress = True
     if progress:
         return third_nf(relations)
@@ -134,17 +138,16 @@ def third_nf(
 def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
     progress = False
     for original_relation in relations.copy():
-        current_relation = original_relation
-        for fd in current_relation.functional_dependencies:
-            if not current_relation.is_superkey(fd[0]):
-                decomposed_relation = current_relation.split(
+        for fd in original_relation.functional_dependencies:
+            if not original_relation.is_superkey(fd[0]):
+                decomposed_relation = original_relation.split(
                     fd[0] + fd[1],
                     pk=fd[0],
-                    name=f"{current_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
+                    name=f"{original_relation.name.removesuffix('Data')}{fd[0][0].removesuffix('ID')}Data",
                 )
-                current_relation.remove_attrs(fd[1])
+                original_relation.remove_attrs(fd[1])
                 decomposed_relation.remove_if_redundant()
-                current_relation.remove_if_redundant()
+                original_relation.remove_if_redundant()
                 progress = True
     if progress:
         return bcnf(relations)
@@ -156,15 +159,14 @@ def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
 def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
     progress = False
     for original_relation in relations.copy():
-        current_relation = original_relation
-        for mvd in current_relation.multivalued_dependencies:
-            decomposed_relation = current_relation.split(mvd[0] + [mvd[1][0]])
-            current_relation.remove_attrs([mvd[1][0]])
+        for mvd in original_relation.multivalued_dependencies:
+            decomposed_relation = original_relation.split(mvd[0] + [mvd[1][0]])
+            original_relation.remove_attrs([mvd[1][0]])
             decomposed_relation.remove_if_redundant()
-            current_relation.remove_if_redundant()
-            if decomposed_relation in relations and not current_relation in relations:
+            original_relation.remove_if_redundant()
+            if decomposed_relation in relations and not original_relation in relations:
                 decomposed_relation.name = (
-                    current_relation.name
+                    original_relation.name
                 )  # If original relation removed, let the decomposed relation inherit the name
             progress = True
     if progress:
@@ -275,7 +277,10 @@ def fix_foreign_key_references(
             if other_relation != current_relation.name:
                 current_relation.foreign_keys.append(([], other_relation, []))
                 for foreign_key_tuple in foreign_key_tuples:
-                    if foreign_key_tuple[1] == other_relation:
+                    if (
+                        foreign_key_tuple[1] == other_relation
+                        and foreign_key_tuple[0] not in current_relation.owned_keys
+                    ):
                         if (
                             not foreign_key_tuple[0]
                             in current_relation.foreign_keys[-1][0]

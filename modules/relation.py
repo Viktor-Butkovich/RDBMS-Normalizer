@@ -94,7 +94,7 @@ class relation:
                 if not attr in mvd[0] + mvd[1]
             ]
             self.multivalued_attrs = [
-                attr for attr in self.multivalued_attrs if attr != attr
+                mva for mva in self.multivalued_attrs if mva != attr
             ]
 
     def detect_mvd(self) -> None:
@@ -285,137 +285,6 @@ class relation:
             },
             self.relations_list,
         )
-
-    def decompose(
-        self,
-        attrs: List[str],
-        omit: List[str],
-        name: str = None,
-    ) -> Tuple["relation", "relation"]:
-        seen = set()
-        decomposed_attrs = [
-            x for x in self.pk + attrs if not (x in seen or seen.add(x) or x in omit)
-        ]
-        decomposed_data_types = [self.get_data_type(attr) for attr in decomposed_attrs]
-        decomposed_candidate_keys = [
-            key
-            for key in self.candidate_keys
-            if all([attr in decomposed_attrs for attr in key])
-            and key != decomposed_attrs
-        ]
-        decomposed_foreign_keys = self.foreign_keys.copy()
-        decomposed_foreign_keys.append(
-            (self.pk.copy(), self.name, self.pk.copy())
-        )  # Foreign key in format (attributes, referenced relation, referenced attributes)
-        decomposed_functional_dependencies = []
-        for fd in self.functional_dependencies:
-            if all(
-                [attr in decomposed_attrs for attr in fd[0]]
-            ):  # If all determining attributes remain
-                determined = [
-                    attr
-                    for attr in fd[1]
-                    if attr in decomposed_attrs and not attr in self.multivalued_attrs
-                ]
-                if determined:  # Keep any determined attributes that remain
-                    decomposed_functional_dependencies.append(
-                        (fd[0].copy(), determined)
-                    )
-        decomposed_multivalued_dependencies = []
-        for fd in self.multivalued_dependencies:
-            if all(
-                [
-                    attr in decomposed_attrs and not attr in self.multivalued_attrs
-                    for attr in fd[0] + fd[1]
-                ]
-            ):  # If all determining/determined attributes remain
-                decomposed_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
-        decomposed_multivalued_attrs = [
-            attr for attr in self.multivalued_attrs if attr in decomposed_attrs
-        ]
-        decomposed_tuples = []
-        for current_tuple in self.tuples:
-            new_tuple = [
-                current_tuple[self.attrs.index(attr)] for attr in decomposed_attrs
-            ]
-            if new_tuple not in decomposed_tuples:
-                decomposed_tuples.append(new_tuple)
-        if not name:
-            name = f"{self.name}_decomposed"
-
-        retained_attrs = [
-            x for x in self.attrs if (x not in decomposed_attrs) or (x in self.pk)
-        ]
-        retained_data_types = [self.get_data_type(attr) for attr in retained_attrs]
-        retained_candidate_keys = [
-            key
-            for key in self.candidate_keys
-            if all([attr in retained_attrs for attr in key]) and key != self.pk
-        ]
-        retained_foreign_keys = self.foreign_keys.copy()
-        retained_multivalued_attrs = [
-            attr for attr in self.multivalued_attrs if attr in retained_attrs
-        ]
-        retained_functional_dependencies = []
-        for fd in self.functional_dependencies:
-            if all(
-                [attr in retained_attrs for attr in fd[0]]
-            ):  # If all determining attributes remain
-                determined = [
-                    attr
-                    for attr in fd[1]
-                    if attr in retained_attrs and not attr in self.multivalued_attrs
-                ]
-                if determined:  # Keep any determined attributes that remain
-                    retained_functional_dependencies.append((fd[0].copy(), determined))
-        retained_multivalued_dependencies = []
-        for fd in self.multivalued_dependencies:
-            if all(
-                [
-                    attr in retained_attrs and not attr in self.multivalued_attrs
-                    for attr in fd[0] + fd[1]
-                ]
-            ):  # If all determining/determined attributes remain
-                retained_multivalued_dependencies.append((fd[0].copy(), fd[1].copy()))
-        retained_tuples = []
-        for current_tuple in self.tuples:
-            new_tuple = [
-                current_tuple[self.attrs.index(attr)] for attr in retained_attrs
-            ]
-            if new_tuple not in retained_tuples:
-                retained_tuples.append(new_tuple)
-        self.relations_list.remove(self)
-        retained_relation = relation(
-            {
-                "Name": self.name,
-                "Attributes": retained_attrs,
-                "Primary key": self.pk,
-                "Candidate keys": retained_candidate_keys,
-                "Multivalued attributes": retained_multivalued_attrs,
-                "Data types": retained_data_types,
-                "Tuples": retained_tuples,
-                "Foreign keys": retained_foreign_keys,
-                "Functional dependencies": retained_functional_dependencies,
-                "Multivalued dependencies": retained_multivalued_dependencies,
-            },
-            self.relations_list,
-        )
-        decomposed_relation = relation(
-            {
-                "Name": name,
-                "Attributes": decomposed_attrs,
-                "Primary key": decomposed_attrs,
-                "Candidate keys": decomposed_candidate_keys,
-                "Multivalued attributes": decomposed_multivalued_attrs,
-                "Data types": decomposed_data_types,
-                "Tuples": decomposed_tuples,
-                "Foreign keys": decomposed_foreign_keys,
-                "Functional dependencies": decomposed_functional_dependencies,
-                "Multivalued dependencies": decomposed_multivalued_dependencies,
-            },
-            self.relations_list,
-        )
-        return (retained_relation, decomposed_relation)
 
     def get_data_type(self, attr: str) -> str:
         if not self.data_types:
