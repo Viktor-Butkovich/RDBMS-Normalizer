@@ -153,7 +153,7 @@ class relation:
     def detect_mvd(self) -> None:
         """
         Description:
-            Detect if the primary key values of any group of 4 tuples in the relation follows this multivalued depdenency pattern:
+            Detect if the primary key values of any group of 4 tuples in the relation follows this multivalued dependency pattern:
                 [other PK values match], a, b
                 [other PK values match], c, d
                 [other PK values match], a, d
