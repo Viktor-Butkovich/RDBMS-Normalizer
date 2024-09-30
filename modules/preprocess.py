@@ -3,12 +3,28 @@ from typing import List, Tuple
 
 
 def read_input_file(file_path: str) -> List[str]:
+    """
+    Description:
+        Basic utility function to read the input file
+    Input:
+        input_file - str: File path to the input file
+    Output:
+        List[str]: List of lines from the input file
+    """
     with open(file_path, "r") as file:
         data = file.read()
     return data
 
 
 def process_input(input_file: str) -> List[relation.relation]:
+    """
+    Description:
+        Extract a list of relations from the input file
+    Input:
+        input_file - str: File path to the input file
+    Output:
+        List[relation]: List of extracted relations
+    """
     input_data = read_input_file(f"{input_file}").split("\n")
     input_data = [line for line in input_data if line.strip()]  # Remove empty lines
     relations_list = []
@@ -18,6 +34,14 @@ def process_input(input_file: str) -> List[relation.relation]:
 
 
 def braces_to_list(braces: str) -> List[str]:
+    """
+    Description:
+        Basic utility function to convert a string of the form "{a, b, c}" into a list ["a", "b", "c"]
+    Input:
+        braces - str: String of the form "{a, b, c}"
+    Output:
+        List[str]: List of strings of the form ["a", "b", "c"]
+    """
     return [
         item.strip() for item in braces.replace("{", "").replace("}", "").split(",")
     ]
@@ -26,6 +50,25 @@ def braces_to_list(braces: str) -> List[str]:
 def extract_relation(
     input_data: List[str], relations_list: List[relation.relation]
 ) -> relation.relation:
+    """
+    Description:
+        Parses the inputted strings into a relation object, performing basic format validations
+    Input:
+        input_data - List[str]: List of strings representing the relation, in format:
+            Relation: CoffeeShopData
+            Attributes: {OrderID, Date, ...}
+            Data types: {INT, DATE, ...}
+            Primary key: {OrderID, ...}
+            Multivalued attributes: {PromocodeUsed, DrinkIngredient}
+            Functional dependency: {OrderID} -> {PromocodeUsed}
+            Functional dependency: {OrderID, DrinkID} -> {DrinkName, DrinkIngredient}
+            Functional dependency: {OrderID, FoodID} -> {FoodName}
+            Tuple: {1001, 6/30/2024, NONE, 7.25, 7.25, 0.00, 1, Alice Brown, 1, Caffe Latte, Grande, 1, ND, {Espresso, Oat Milk}, {Oat}, 0, NULL, 0, NONE, NONE}
+            Tuple: {1002, 6/30/2026, {SUMMERFUN}, 9.98, 5.99, 3.99, 2, David Miller, 2, Iced Caramel Macchiato, Tall, 2, ND, {Espresso, Vanilla Syrup, Milk, Ice}, {Dairy, Nuts}, 3, Blueberry Muffin, 1, {Flour, Sugar, Blueberries, Eggs}, {Wheat, Egg}}
+        relations_list - List[relation]: List of relations to add the new relation to
+    Output:
+        relation: Relation object created from the input data
+    """
     if not input_data[0].startswith("Relation:"):
         raise ValueError(
             f"The first field in each relation must be 'Relation: <name>', not {input_data[0]}"

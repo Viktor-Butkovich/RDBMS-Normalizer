@@ -11,7 +11,6 @@ Test scripts:
 
 import argparse
 from modules import preprocess, normalize
-from typing import List
 
 
 normal_forms = {
@@ -25,7 +24,20 @@ normal_forms = {
 }
 
 
-def main(args: List[str]):
+def main(args: argparse.Namespace):
+    """
+    Description:
+        Run the normalizer based on the inputted arguments
+    Input:
+        args - Namespace: Arguments from the command line
+            input_file: File path to the input file
+            output_file: File path to the output file
+                Set to stdio to print to the console instead
+            normal_form: Normal form to normalize the input file to - 0NF, 1NF, 2NF, 3NF, BCNF, 4NF, or 5NF
+            target: Target output format - set to SQL to output SQL commands instead of a textual schema
+    Output:
+        Sends the output to the desired output file, or the stdio console if specified
+    """
     if not args.normal_form in normal_forms.keys():
         raise ValueError(
             f"Invalid normal form {args.normal_form} - must be one of {normal_forms.keys()}"
@@ -85,5 +97,3 @@ if __name__ == "__main__":
         required=False,
     )
     main(parser.parse_args())
-# Add comments, code description report, and summary of challenges in implementation
-# Also include validation tests performed

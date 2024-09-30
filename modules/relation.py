@@ -3,7 +3,28 @@ from typing import List, Tuple
 
 
 class relation:
+    """
+    Represents a relation in a relational database - can be extracted from/converted to .txt file format, and converted to SQl commands
+    """
+
     def __init__(self, input_dict: dict, relations_list: List["relation"]) -> None:
+        """
+        Description:
+            Initialize a relation object from a dictionary of attributes, and verifies that it results in valid SQL commands
+        Input:
+            input_dict - dict: Dictionary of attributes for the relation
+                Name - str: Name of the relation
+                Attributes - List[str]: List of attributes in the relation
+                Primary key - List[str]: List of primary key attributes
+                Candidate keys - List[List[str]]: List of candidate keys
+                Foreign keys - List[Tuple[List[str], str, List[str]]]: List of foreign keys, in format ([attribute1, attribute], other_relation_name, [attribute1, attribute2])
+                Functional dependencies - List[Tuple[List[str], List[str]]]: List of functional dependencies, in format ([attribute1], [attribute2, attribute3])
+                Multivalued dependencies - List[Tuple[List[str], List[str]]]: List of multivalued dependencies, in format ([attribute1], [attribute2, attribute3])
+                Multivalued attributes - List[str]: List of multivalued attributes
+                Data types - List[str]: List of data types for each attribute, in same order as attributes
+                Tuples - List[List[str]]: List of tuples in the relation, with values in same order as attributes
+            relations_list - List[relation]: List of all relations, used to add this relation to the list
+        """
         self.relations_list = relations_list
         self.relations_list.append(self)
         self.name: str = input_dict["Name"]
@@ -27,6 +48,14 @@ class relation:
         self.verify_sql()
 
     def remove_if_redundant(self) -> None:
+        """
+        Description:
+            Checks whether this relation is redundant (no attributes unique to it), removing it from relations list if redundant
+        Input:
+            None
+        Output:
+            None
+        """
         all_attrs = []
         for relation in self.relations_list:
             if relation != self:
@@ -37,12 +66,28 @@ class relation:
             self.relations_list.remove(self)
 
     def is_superkey(self, attrs: List[str]) -> bool:
+        """
+        Description:
+            Checks and returns whether the inputted list of attributes is a superkey of this relation - primary key is a subset of it
+        Input:
+            attrs - List[str]: Possible superkey
+        Output:
+            bool: Whether the inputted list of attributes is a superkey of this relation
+        """
         for key in [self.pk] + self.candidate_keys:
             if set(key).issubset(set(attrs)):
                 return True
         return False
 
     def is_prime(self, attrs: List[str]) -> bool:
+        """
+        Description:
+            Checks and returns whether the inputted list of attributes is all prime attributes - subset of the primary key and candidate keys
+        Input:
+            attrs - List[str]: Possible prime attributes
+        Output:
+            bool: Whether the inputted list of attributes are all prime attributes
+        """
         for key in [self.pk] + self.candidate_keys:
             if len(attrs) > 0:
                 if set(key).issubset(set(attrs)):
@@ -53,6 +98,14 @@ class relation:
         return False
 
     def remove_attrs(self, attrs: List[str]) -> None:
+        """
+        Description:
+            Removes the inputted attributes from this relation, updating all affected fields
+        Input:
+            attrs - List[str]: List of attributes to remove
+        Output:
+            None
+        """
         for attr in attrs:
             index = self.attrs.index(attr)
             self.attrs.remove(attr)
@@ -99,13 +152,19 @@ class relation:
 
     def detect_mvd(self) -> None:
         """
-        Detect if the primary key values of any group of 4 tuples in the relation follows this pattern:
-            [other PK values match], a, b
-            [other PK values match], c, d
-            [other PK values match], a, d
-            [other PK values match], c, b
-        If so, the relation has a multivalued dependency {other PK attributes} -->> attribute 3 | attribute 4
-        Some MVDs may be missed if the relation does not have enough tuples to reveal them
+        Description:
+            Detect if the primary key values of any group of 4 tuples in the relation follows this multivalued depdenency pattern:
+                [other PK values match], a, b
+                [other PK values match], c, d
+                [other PK values match], a, d
+                [other PK values match], c, b
+            If so, the relation has a multivalued dependency {other PK attributes} -->> attribute 3 | attribute 4 - adds MVD to this relation's list of MVD's
+            Some MVDs may be missed if the relation does not have enough tuples to reveal them
+            MVD's arise after 1NF normalization
+        Input:
+            None
+        OutpuT:
+            None
         """
         for attr1 in self.pk:
             attr1_index = self.attrs.index(attr1)
@@ -186,6 +245,14 @@ class relation:
                                                             )
 
     def split_mva(self, mva: str) -> None:
+        """
+        Description:
+            Splits the inputted multivalued attribute into a single-valued attribute, splitting each tuple into one for of the MVA's values
+        Input:
+            mva - str: Multivalued attribute to split
+        Output:
+            None
+        """
         index = self.attrs.index(mva)
         self.data_types[index] = "VARCHAR"
         self.multivalued_attrs.remove(mva)
@@ -198,6 +265,14 @@ class relation:
                 self.tuples.remove(current_tuple)
 
     def __str__(self) -> str:
+        """
+        Description:
+            Returns a string version of this relation, in the same format required to recreate it from a .txt file
+        Input:
+            None
+        Output:
+            str: String version of this relation
+        """
         description = f"Relation: {self.name}\n"
         description += f"Attributes: {{{', '.join(self.attrs)}}}\n"
         if self.data_types:
@@ -235,6 +310,16 @@ class relation:
     def split(
         self, attrs: List[str], pk: List[str] = None, name: str = None
     ) -> "relation":
+        """
+        Description:
+            Creates a new relation based on this one but with only the inputted attributes, leaving the original relation unchanged
+        Input:
+            attrs - List[str]: List of attributes to keep in the new relation
+            pk - List[str]: List of primary key attributes to use in the new relation - defaults to the original primary key attributes still remaining
+            name - str: Name of the new relation - defaults to the original name + "_decomposed"
+        Output:
+            relation: New relation with only the inputted attributes
+        """
         if not name:
             name = f"{self.name}_decomposed"
         split_data_types = [self.get_data_type(attr) for attr in attrs]
@@ -287,11 +372,27 @@ class relation:
         )
 
     def get_data_type(self, attr: str) -> str:
+        """
+        Description:
+            Returns the data type of the inputted attribute
+        Input:
+            attr - str: Attribute to find the data type of
+        Output:
+            str: Data type of the inputted attribute
+        """
         if not self.data_types:
             return "TEXT"
         return self.data_types[self.attrs.index(attr)]
 
     def to_sql(self) -> List[str]:
+        """
+        Description:
+            Converts this relation to a list of SQL commands to create the relation and insert its tuples
+        Input:
+            None
+        Output:
+            List[str]: List of SQL commands to create the relation and insert its tuples
+        """
         return_list = []
         sql = f"CREATE TABLE {self.name} (\n"
         for attr in self.attrs:
@@ -318,7 +419,15 @@ class relation:
             return_list.append(f"INSERT INTO {self.name} VALUES({', '.join(values)});")
         return return_list
 
-    def verify_sql(self) -> str:
+    def verify_sql(self) -> List[Tuple]:
+        """
+        Description:
+            Converts this relation to SQL commands and executes them in an in-memory sqlite database, verifying their validity
+        Input:
+            None
+        Output:
+            List[Tuple]: List of tuples representing the table schema in the sqlite database
+        """
         conn = sqlite3.connect(
             ":memory:"
         )  # Create an in-memory sqlite DB to verify that this relation's to_sql() is valid

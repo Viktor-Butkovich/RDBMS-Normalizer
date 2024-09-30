@@ -4,10 +4,28 @@ from itertools import combinations
 
 
 def zero_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 0NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 0NF relations
+    """
     return relations
 
 
 def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 1NF, decomposing multivalued attributes into their own relations (nested relations not supported)
+    Preconditions:
+        Inputted relations are already in 0NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 1NF relations
+    """
     for original_relation in relations.copy():
         while original_relation.multivalued_attrs:
             mva = original_relation.multivalued_attrs[0]
@@ -31,9 +49,21 @@ def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 2NF, decomposing partial functional dependencies into their own relations
+    Preconditions:
+        Inputted relations are already in 1NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 2NF relations
+    """
     for original_relation in relations.copy():
         normalized = False
         removed_original = False
+
+        # Detect partial functional dependencies
         pfds = []
         for fd in original_relation.functional_dependencies:
             if (
@@ -45,6 +75,8 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
         original_foreign_keys = [
             attr for fk in original_relation.foreign_keys for attr in fk[0]
         ]
+
+        # Decompose partial functional dependencies
         split_relations = []
         for pfd in pfds:
             if pfd in original_relation.functional_dependencies:
@@ -62,8 +94,7 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
                         and set(remaining_attrs).issubset(relation.attrs)
                         for relation in relations
                     ]
-                ):
-                    # If remaining attributes would be redundant, just replace with decomposed relation
+                ):  # If remaining attributes would be redundant, just replace with decomposed relation
                     original_relation.remove_attrs(
                         sorted(
                             list(set(original_relation.attrs) - set(pfd[0] + pfd[1]))
@@ -78,6 +109,7 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
         if normalized and (not removed_original):
             original_relation.remove_if_redundant()
 
+        # Inherit foreign keys - if original relation removed, manage which "chlid" relation inherits ownership of which keys
         inherited_keys = []
         if (
             not original_relation in relations
@@ -109,16 +141,25 @@ def second_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 def third_nf(
     relations: List[relation.relation],
-) -> List[
-    relation.relation
-]:  # Note - anomaly in 3NF output due to incorrect FD label in initial input: OrderID -/> PromocodeUsed
+) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 3NF, decomposing transitive functional dependencies into their own relations
+            Recursively calls itself until all relations are in 3NF
+    Preconditions:
+        Inputted relations are already in 2NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 3NF relations
+    """
     progress = False
     for original_relation in relations.copy():
         for fd in original_relation.functional_dependencies:
             if not (
                 original_relation.is_superkey(fd[0])
                 or original_relation.is_prime(fd[1])
-            ):
+            ):  # For each FD X -> Y, X must be a superkey or Y must be prime - decompose if not true
                 decomposed_relation = original_relation.split(
                     fd[0] + fd[1],
                     pk=fd[0],
@@ -136,10 +177,23 @@ def third_nf(
 
 
 def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to BCNF, removing all non-trivial functional dependencies
+            Recursively calls itself until all relations are in BCNF
+    Preconditions:
+        Inputted relations are already in 3NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of BCNF relations
+    """
     progress = False
     for original_relation in relations.copy():
         for fd in original_relation.functional_dependencies:
-            if not original_relation.is_superkey(fd[0]):
+            if not original_relation.is_superkey(
+                fd[0]
+            ):  # For each FD X -> Y, X must be a superkey - decompose if not true
                 decomposed_relation = original_relation.split(
                     fd[0] + fd[1],
                     pk=fd[0],
@@ -157,6 +211,18 @@ def bcnf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 4NF, removing all non-trivial multivalued dependencies
+            Recursively calls itself until all relations are in 4NF
+    Preconditions:
+        Inputted relations are already in BCNF
+        Multivalued dependencies provided, or automatically detected during 1NF normalization
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 4NF relations
+    """
     progress = False
     for original_relation in relations.copy():
         for mvd in original_relation.multivalued_dependencies:
@@ -177,6 +243,18 @@ def fourth_nf(relations: List[relation.relation]) -> List[relation.relation]:
 
 
 def fifth_nf(relations: List[relation.relation]) -> List[relation.relation]:
+    """
+    Description:
+        Converts the inputted list of relations to 4NF, detecting and decomposing all join dependencies
+            Recursively calls itself until all relations are in 4NF
+            Very likely to result in false-positives if not many tuples provided, since recreating relation with ~1 tuple is trivial for any decomposition
+    Preconditions:
+        Inputted relations are already in 4NF
+    Input:
+        relations - List[relation]: List of relations to convert
+    Output:
+        List[relation]: List of 5NF relations
+    """
     progress = False
     for original_relation in relations.copy():
         lhs, rhs = find_join_dependency(original_relation)
@@ -198,6 +276,14 @@ def fifth_nf(relations: List[relation.relation]) -> List[relation.relation]:
 def find_join_dependency(
     current_relation: relation.relation,
 ) -> Tuple[List[str], List[str]]:
+    """
+    Description:
+        Analyzes the inputted relation for any join dependencies - if relation can be split into 2 relations that can be natural-joined to recreate the original
+    Input:
+        relations - relation: Relation to analyze
+    Output:
+        Tuple[List[str], List[str]]: Tuple of 2 sets of attributes to split the relation into, or None, None if no join dependency found
+    """
     num_attrs = len(current_relation.attrs)
     if (
         num_attrs < 4 or not current_relation.tuples
@@ -207,10 +293,13 @@ def find_join_dependency(
     optimal_lhs_size, optimal_rhs_size = num_attrs * len(
         current_relation.tuples
     ), num_attrs * len(current_relation.tuples)
+
     for join_on in current_relation.attrs:
         other_attrs = [attr for attr in current_relation.attrs if attr != join_on]
         for length in range(1, num_attrs - 1):
-            for lhs in combinations(other_attrs, length):
+            for lhs in combinations(
+                other_attrs, length
+            ):  # Try every combination of relations with 2+ attributes each
                 rhs = list(set(current_relation.attrs) - set(lhs))
                 lhs = list(lhs) + [join_on]
                 lhs_indices = [current_relation.attrs.index(attr) for attr in lhs]
@@ -249,9 +338,16 @@ def find_join_dependency(
     return optimal_lhs, optimal_rhs
 
 
-def fix_foreign_key_references(
-    relations: List[relation.relation],
-) -> List[relation.relation]:
+def fix_foreign_key_references(relations: List[relation.relation]) -> None:
+    """
+    Description:
+        Detects and fixes any improper foreign key references, such as those referencing relations that no longer exist
+            Find the correct relation to reference if possible, or designate the relation as the owner of that attribute if no other relations have it
+    Input:
+        relations - List[relation]: List of relations to analyze
+    Output:
+        None
+    """
     relation_names = [relation.name for relation in relations]
     for current_relation in relations:
         foreign_key_tuples = []

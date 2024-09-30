@@ -4,7 +4,7 @@ Data types: {INT, DATE, LIST[VARCHAR], FLOAT, FLOAT, FLOAT, INT, VARCHAR, INT, V
 Primary key: {OrderID, DrinkID, FoodID}
 Multivalued attributes: {PromocodeUsed, DrinkIngredient, DrinkAllergen, FoodIngredient, FoodAllergen}
 Functional dependency: {OrderID} -> {PromocodeUsed, Date, TotalCost, TotalDrinkCost, TotalFoodCost, CustomerID, CustomerName}
-Functional dependency: {OrderID, DrinkID} -> {DrinkName, DrinkSize, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen} // maybe more}
+Functional dependency: {OrderID, DrinkID} -> {DrinkName, DrinkSize, DrinkQuantity, Milk, DrinkIngredient, DrinkAllergen}
 Functional dependency: {OrderID, FoodID} -> {FoodName, FoodQuantity, FoodIngredient, FoodAllergen}
 Functional dependency: {CustomerID} -> {CustomerName}
 Functional dependency: {DrinkID} -> {DrinkName}
