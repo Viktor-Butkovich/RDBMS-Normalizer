@@ -1,0 +1,7 @@
+Relation: relation_name
+Attributes: {order_id, order_date, customer_id, customer_name, customer_address, customer_city, customer_state, item_id, item_description, item_qty, item_price, item_total_price, order_total_price}
+Data types: {INT, DATE, INT, VARCHAR, VARCHAR, VARCHAR, VARCHAR, INT, VARCHAR, INT, FLOAT, FLOAT, FLOAT}
+Primary key: {order_id, item_id}
+Functional dependency: {order_id} -> {order_date, customer_id, customer_name, customer_address, customer_city, customer_state, order_total_price}
+Functional dependency: {order_id, item_id} -> {item_description, item_qty, item_price, item_total_price}
+Functional dependency: {customer_id} -> {customer_name, customer_address, customer_city, customer_state}

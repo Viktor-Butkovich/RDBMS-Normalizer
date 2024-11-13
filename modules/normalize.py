@@ -42,9 +42,10 @@ def first_nf(relations: List[relation.relation]) -> List[relation.relation]:
             decomposed_relation.multivalued_attrs = [mva]
             original_relation.remove_attrs([mva])
             decomposed_relation.split_mva(mva)
-            decomposed_relation.detect_mvd()
             decomposed_relation.owned_keys.append(mva)
     fix_foreign_key_references(relations)
+    for original_relation in relations:
+        original_relation.detect_mvd()
     return relations
 
 

@@ -1,0 +1,10 @@
+Relation: name
+Attributes: {Ename, Pname, Dname}
+Data types: {VARCHAR, VARCHAR, VARCHAR}
+Primary key: {Ename, Pname, Dname}
+Tuple: {Smith, X, John}
+Tuple: {Smith, Y, Anna}
+Tuple: {Smith, X, Anna}
+Tuple: {Smith, Y, John}
+Tuple: {Smith, Z, John}
+Tuple: {Smith, Z, Anna}
