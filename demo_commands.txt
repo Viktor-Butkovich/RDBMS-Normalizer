@@ -1,0 +1,32 @@
+Run in order:
+    Convert 0NF schema back to itself
+    ./scripts/convert_schema.sh inputs/0NF_test_1.txt outputs/demo_target.txt 0NF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 0NF
+
+    Convert 0NF schema to 1NF
+    ./scripts/convert_schema.sh outputs/demo_target.txt outputs/demo_target.txt 1NF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 1NF
+
+    Convert 1NF schema to 2NF
+    ./scripts/convert_schema.sh outputs/demo_target.txt outputs/demo_target.txt 2NF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 2NF
+
+    Convert 2NF schema to 3NF
+    ./scripts/convert_schema.sh outputs/demo_target.txt outputs/demo_target.txt 3NF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 3NF
+
+    Convert 3NF schema to BCNF
+    ./scripts/convert_schema.sh outputs/demo_target.txt outputs/demo_target.txt BCNF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql BCNF
+
+    Convert BCNF schema to 4NF
+    ./scripts/convert_schema.sh outputs/demo_target.txt outputs/demo_target.txt 4NF
+    ./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 4NF
+
+End-to-end: 0NF schema to 4NF
+./scripts/convert_schema.sh inputs/0NF_test_1.txt outputs/demo_target.txt 4NF
+./scripts/to_sql.sh inputs/0NF_test_1.txt outputs/demo_sql_target.sql 4NF
+
+Convert 4NF schema to 5NF (uses different data)
+./scripts/convert_schema.sh inputs/4NF_test_1.txt outputs/demo_target.txt 5NF
+./scripts/to_sql.sh inputs/4NF_test_1.txt outputs/demo_sql_target.sql 5NF
