@@ -1,5 +1,5 @@
 # RDBMS Normalizer
- Graduate Database Systems project to automatically perform 1NF, 2NF, 3NF, BCNF, 4NF, and 5NF normalization on an inputted relational database schema
+Automatically performing 1NF, 2NF, 3NF, BCNF, 4NF, and 5NF normalization on an inputted relational database schema
 
 Dependencies:
 ```Python```, ```sqlite3``` library, ability to run ```.sh``` or ```.bat``` scripts (Unix or Windows)
